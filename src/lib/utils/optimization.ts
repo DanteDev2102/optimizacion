@@ -1,202 +1,145 @@
 import { ComputeEngine } from "@cortex-js/compute-engine";
-import { matrix, multiply, add, subtract, norm, inv, squeeze } from "mathjs";
+import type { IOptimizationProblem, OptimizationConfig, OptimizationResult } from "./core/interfaces";
+import { GradientDescentOptimizer } from "./algorithms/GradientDescent";
+import { NewtonOptimizer } from "./algorithms/Newton";
+import { BFGSOptimizer } from "./algorithms/QuasiNewton";
+import { GeneticAlgorithmOptimizer } from "./algorithms/GeneticAlgorithm";
+import { checkKKT } from "./algorithms/Constraints";
 
 const ce = new ComputeEngine();
 
-export interface IterationResult {
-  iteration: number;
-  xk: number[];
-  grad: number[];
-  hessian?: number[][];
-  pk: number[];
-  stepSize: number;
-  xkNext: number[];
-  normGrad: number;
-}
-
-// Helper to extract variables x1, x2, ... from a point vector
 function getContext(xk: number[]): Record<string, number> {
   const context: Record<string, number> = {};
   xk.forEach((val, i) => {
-    context[`x_${i + 1}`] = val;      // e.g. x_1
-    context[`x_{${i + 1}}`] = val;    // e.g. x_{1}
-    context[`x${i + 1}`] = val;       // e.g. x1
+    context[`x_${i + 1}`] = val;      
+    context[`x_{${i + 1}}`] = val;    
+    context[`x${i + 1}`] = val;       
   });
   return context;
 }
 
-// Parse a latex string that represents a vector (e.g. "x_1+2, x_2-1" or "\begin{bmatrix} ... \end{bmatrix}")
-// and evaluate it at xk
-function evaluateVector(latex: string, xk: number[]): number[] {
-  const ctx = getContext(xk);
+export function parseObjective(latex: string): (x: number[]) => number {
+  if (!latex) throw new Error("Objective function is required.");
+  const expr = ce.parse(latex);
+  return (x: number[]) => {
+    const ctx = getContext(x);
+    const val = expr.subs(ctx).evaluate();
+    return Number(val.valueOf() ?? 0);
+  };
+}
 
-  if (latex.includes('\\begin{bmatrix}') || latex.includes('\\begin{pmatrix}')) {
-    const content = latex.match(/\\begin{[bp]matrix}([\s\S]*?)\\end{[bp]matrix}/)?.[1] || '';
-    const items = content.includes('\\\\') ? content.split('\\\\') : content.split('&');
-    return items.filter(item => item.trim() !== '').map(item => {
-      const e = ce.parse(item.trim());
-      const val = e.subs(ctx).evaluate();
+export function parseVectorFunction(stringVec: string[][]): (x: number[]) => number[] {
+  // stringVec is nx1 (or 1xn)
+  const flat = stringVec.flat();
+  const exprs = flat.map(s => ce.parse(s));
+  return (x: number[]) => {
+    const ctx = getContext(x);
+    return exprs.map(expr => {
+      const val = expr.subs(ctx).evaluate();
       return Number(val.valueOf() ?? 0);
     });
-  }
-
-  // Fallback: comma separated
-  const parts = latex.split(',').map(s => s.trim());
-  return parts.filter(p => p !== '').map(part => {
-    const e = ce.parse(part);
-    const val = e.subs(ctx).evaluate();
-    return Number(val.valueOf() ?? 0);
-  });
+  };
 }
 
-function evaluateMatrix(latex: string, xk: number[]): number[][] {
-  const ctx = getContext(xk);
-
-  if (latex.includes('\\begin{bmatrix}') || latex.includes('\\begin{pmatrix}')) {
-    const content = latex.match(/\\begin{[bp]matrix}([\s\S]*?)\\end{[bp]matrix}/)?.[1] || '';
-    const rows = content.split('\\\\').filter(r => r.trim() !== '');
-    return rows.map(row => {
-      const cols = row.split('&').filter(c => c.trim() !== '');
-      return cols.map(col => {
-        const e = ce.parse(col.trim());
-        const val = e.subs(ctx).evaluate();
-        return Number(val.valueOf() ?? 0);
-      });
-    });
-  }
-
-  return [];
-}
-
-// Parse initial point, no context needed since it's just numbers
-export function parseInitialPoint(latex: string): number[] {
-  if (latex.includes('\\begin{bmatrix}') || latex.includes('\\begin{pmatrix}')) {
-    const content = latex.match(/\\begin{[bp]matrix}([\s\S]*?)\\end{[bp]matrix}/)?.[1] || '';
-    const items = content.includes('\\\\') ? content.split('\\\\') : content.split('&');
-    return items.filter(item => item.trim() !== '').map(item => {
-      const e = ce.parse(item.trim());
-      const val = e.evaluate();
+export function parseMatrixFunction(stringMat: string[][]): (x: number[]) => number[][] {
+  const exprs = stringMat.map(row => row.map(s => ce.parse(s)));
+  return (x: number[]) => {
+    const ctx = getContext(x);
+    return exprs.map(row => row.map(expr => {
+      const val = expr.subs(ctx).evaluate();
       return Number(val.valueOf() ?? 0);
+    }));
+  };
+}
+
+export function runOptimization(
+  algorithm: "gradient" | "newton" | "bfgs" | "ga",
+  objectiveLatex: string,
+  gradientMat: string[][] | null,
+  hessianMat: string[][] | null,
+  x0Mat: string[][],
+  config: OptimizationConfig,
+  eqConstraints: string[] = [],
+  ineqConstraints: string[] = []
+): OptimizationResult {
+  
+  const problem: IOptimizationProblem = {
+    objective: parseObjective(objectiveLatex),
+  };
+
+  // Parse Constraints
+  if (eqConstraints.length > 0) {
+    problem.equalityConstraints = eqConstraints.filter(c => c.trim() !== "").map(c => {
+      try { return parseObjective(c); } catch { throw new Error(`Invalid Equality Constraint: ${c}`); }
+    });
+  }
+  if (ineqConstraints.length > 0) {
+    problem.inequalityConstraints = ineqConstraints.filter(c => c.trim() !== "").map(c => {
+      try { return parseObjective(c); } catch { throw new Error(`Invalid Inequality Constraint: ${c}`); }
     });
   }
 
-  // Fallback for comma separated rows or 1D matrix
-  const clean = latex.replace(/\\left\[/g, '').replace(/\\right\]/g, '').replace(/\\begin{[bp]matrix}/, '').replace(/\\end{[bp]matrix}/, '').replace(/\\\\/, ',');
-  const parts = clean.split(',').map(s => s.trim());
-  return parts.filter(p => p !== '').map(part => {
-    const e = ce.parse(part);
-    const val = e.evaluate();
-    return Number(val.valueOf() ?? 0);
+  const hasConstraints = (problem.equalityConstraints && problem.equalityConstraints.length > 0) || 
+                         (problem.inequalityConstraints && problem.inequalityConstraints.length > 0);
+
+  if (algorithm !== 'ga' && hasConstraints) {
+    throw new Error("Constraints are only supported using the Penalty Method in the Genetic Algorithm (GA) right now. Analytical methods (Newton/BFGS/Gradient) require unconstrained formulations.");
+  }
+
+  if (algorithm === "newton" || algorithm === "bfgs" || algorithm === "gradient") {
+    if (!gradientMat || gradientMat.length === 0 || gradientMat[0].length === 0 || gradientMat[0][0] === "") {
+      throw new Error(`The ${algorithm} algorithm requires the Gradient vector to be provided.`);
+    }
+    problem.gradient = parseVectorFunction(gradientMat);
+  }
+
+  if (algorithm === "newton") {
+    if (!hessianMat || hessianMat.length === 0 || hessianMat[0].length === 0 || hessianMat[0][0] === "") {
+      throw new Error("Newton's method requires the Hessian matrix to be provided.");
+    }
+    problem.hessian = parseMatrixFunction(hessianMat);
+  }
+
+  // Parse Initial point x0
+  // Handle if x0 is Nx1 or 1xN
+  let x0Str = x0Mat.flat();
+  let x0 = x0Str.map(s => {
+    const expr = ce.parse(s);
+    return Number(expr.evaluate().valueOf() ?? 0);
   });
-}
 
-export function gradientDescent(
-  x0Latex: string,
-  gradLatex: string,
-  tol: number,
-  stepSize: number,
-  maxIter: number = 100,
-): IterationResult[] {
-  const iterations: IterationResult[] = [];
-  let xk = parseInitialPoint(x0Latex);
-
-  for (let i = 0; i < maxIter; i++) {
-    const grad = evaluateVector(gradLatex, xk);
-    const normG = Number(squeeze(norm(grad as any)));
-
-    if (isNaN(normG)) {
-      throw new Error(`Gradiente se evaluó a NaN en la iteración ${i}.`);
-    }
-
-    // Direction pk = -grad
-    const pk = multiply(grad, -1) as number[];
-
-    // x_{k+1} = x_k + alpha * pk
-    const step = multiply(pk, stepSize);
-    const xkNext = add(xk, step) as number[];
-
-    iterations.push({
-      iteration: i,
-      xk: [...xk],
-      grad,
-      pk,
-      stepSize,
-      xkNext: [...xkNext],
-      normGrad: normG,
-    });
-
-    if (normG < tol) {
+  let optimizer;
+  switch (algorithm) {
+    case "gradient":
+      optimizer = new GradientDescentOptimizer();
       break;
-    }
-
-    xk = xkNext;
+    case "newton":
+      optimizer = new NewtonOptimizer();
+      break;
+    case "bfgs":
+      optimizer = new BFGSOptimizer();
+      break;
+    case "ga":
+      optimizer = new GeneticAlgorithmOptimizer();
+      break;
+    default:
+      throw new Error("Unknown algorithm selected.");
   }
 
-  return iterations;
-}
+  const result = optimizer.optimize(problem, x0, config);
 
-export function newtonsMethod(
-  x0Latex: string,
-  gradLatex: string,
-  hessLatex: string,
-  tol: number,
-  stepSize: number,
-  maxIter: number = 100,
-): IterationResult[] {
-  const iterations: IterationResult[] = [];
-  let xk = parseInitialPoint(x0Latex);
-
-  for (let i = 0; i < maxIter; i++) {
-    const grad = evaluateVector(gradLatex, xk);
-    const hess = evaluateMatrix(hessLatex, xk);
-
-    const normG = Number(squeeze(norm(grad as any)));
-
-    if (isNaN(normG)) {
-      throw new Error(
-        `Gradiente o Hessiana se evaluó a NaN en la iteración ${i}.`,
-      );
-    }
-
-    // pk = -inv(H) * grad
-    let pk: number[];
-    try {
-      const hessInv = inv(hess);
-      const pkMatrix = multiply(multiply(hessInv, -1), grad);
-      // Ensure pk is a flat array
-      pk =
-        Array.isArray(pkMatrix) && Array.isArray(pkMatrix[0])
-          ? (squeeze(pkMatrix) as number[])
-          : (pkMatrix as unknown as number[]);
-      if (!Array.isArray(pk)) {
-        pk = [pk]; // handle 1D case
-      }
-    } catch (e) {
-      throw new Error(
-        `La matriz Hessiana no es invertible en la iteración ${i}. ${e}`,
-      );
-    }
-
-    const step = multiply(pk, stepSize);
-    const xkNext = add(xk, step) as number[];
-
-    iterations.push({
-      iteration: i,
-      xk: [...xk],
-      grad,
-      hessian: hess,
-      pk,
-      stepSize,
-      xkNext: [...xkNext],
-      normGrad: normG,
-    });
-
-    if (normG < tol) {
-      break;
-    }
-
-    xk = xkNext;
+  // Check KKT Conditions at the solution
+  if (problem.gradient && result.solution) {
+    const kkt = checkKKT(
+      result.solution,
+      problem.gradient(result.solution),
+      problem.equalityConstraints,
+      problem.inequalityConstraints,
+      config.tolerance
+    );
+    result.isFeasible = kkt.isFeasible;
+    result.kktViolations = kkt.violations;
   }
 
-  return iterations;
+  return result;
 }
