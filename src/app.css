@@ -1,73 +1,97 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 252 56% 57%; /* Violet-indigo */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --radius: 0.75rem;
+    --bg-navy: #161c2d;
+    --bg-surface: #1e2638;
+    --bg-surface-active: #29344d;
+    --neon-teal: #34d399;
+    --neon-blue: #60a5fa;
+    --neon-purple: #8b5cf6;
+    --neon-yellow: #fbbf24;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
   }
 
   body {
-    background-color: #09090b;
-    color: #fafafa;
+    background-color: #0f131f;
+    color: var(--text-main);
     min-height: 100vh;
-    background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent 400px),
-                      radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.1), transparent 400px);
-    background-attachment: fixed;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* MathLive Customization for dark mode */
   math-field {
     width: 100%;
-    border-radius: 0.75rem; /* rounded-xl */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 0.5rem 0.75rem; /* less space */
-    font-size: 1rem; /* slightly smaller font */
-    color: #fafafa;
-    --keyboard-background: #09090b;
-    --keyboard-toolbar-text: #fafafa;
-    --keyboard-toolbar-background: #09090b;
-    --keycap-background: #18181b;
-    --keycap-text: #fafafa;
-    --keycap-secondary-text: #a1a1aa;
-    --keycap-secondary-background: #09090b;
-    --keycap-border: #27272a;
-    backdrop-filter: blur(8px);
-    transition: all 0.2s ease;
+    border-radius: 12px;
+    background-color: var(--bg-surface);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1rem; 
+    color: var(--text-main);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+    --keyboard-background: var(--bg-navy);
+    --keycap-background: var(--bg-surface);
   }
 
   math-field:focus-within {
-    border-color: #8b5cf6;
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    border-color: var(--neon-teal);
+    box-shadow: 0 0 0 1px var(--neon-teal), inset 0 2px 5px rgba(0,0,0,0.2);
     outline: none;
   }
 }
 
 @layer utilities {
-  .glass {
-    background-color: rgba(9, 9, 11, 0.6);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+
+  .btn-calc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--bg-surface);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  
+  .btn-calc:active {
+    transform: scale(0.95);
+    background-color: var(--bg-surface-active);
+  }
+
+  .btn-calc.primary {
+    background-color: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+  }
+
+  .btn-calc.success {
+    background-color: var(--neon-teal);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(52, 211, 153, 0.4);
+  }
+
+  .setup-card {
+    background-color: var(--bg-surface);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .setup-pill {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    background-color: var(--bg-surface);
+  }
+  
+  .setup-pill.active {
+    background-color: rgba(52, 211, 153, 0.1);
+    border-color: var(--neon-teal);
+    color: var(--neon-teal);
   }
 }
