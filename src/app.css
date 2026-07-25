@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 252 56% 57%; /* Violet-indigo */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.75rem;
+  }
+
+  body {
+    background-color: #09090b;
+    color: #fafafa;
+    min-height: 100vh;
+    background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent 400px),
+                      radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.1), transparent 400px);
+    background-attachment: fixed;
+  }
+
+  /* MathLive Customization for dark mode */
+  math-field {
+    width: 100%;
+    border-radius: 0.75rem; /* rounded-xl */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0.75rem; /* less space */
+    font-size: 1rem; /* slightly smaller font */
+    color: #fafafa;
+    --keyboard-background: #09090b;
+    --keyboard-toolbar-text: #fafafa;
+    --keyboard-toolbar-background: #09090b;
+    --keycap-background: #18181b;
+    --keycap-text: #fafafa;
+    --keycap-secondary-text: #a1a1aa;
+    --keycap-secondary-background: #09090b;
+    --keycap-border: #27272a;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+  }
+
+  math-field:focus-within {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background-color: rgba(9, 9, 11, 0.6);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+}
