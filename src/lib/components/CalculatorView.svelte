@@ -28,7 +28,7 @@
 
   // Derive points for D3 Trajectory (using first two dimensions)
   let trajectoryPoints = $derived(
-    result ? result.iterations.map(i => [i.xk[0] || 0, i.xk[1] || 0] as [number, number]) : []
+    result ? result.iterations.map((i: IterationResult) => [i.xk[0] || 0, i.xk[1] || 0] as [number, number]) : []
   );
 
 </script>

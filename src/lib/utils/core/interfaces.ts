@@ -12,6 +12,7 @@ export interface OptimizationConfig {
   stepSize?: number;
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
+  lineSearchMethod?: "backtracking" | "zoom";
   populationSize?: number; // For GA
   generations?: number; // For GA
 }

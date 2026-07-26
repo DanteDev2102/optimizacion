@@ -46,10 +46,10 @@
   });
 
   function addEq() { eqConsts = [...eqConsts, ""]; }
-  function removeEq(i: number) { eqConsts = eqConsts.filter((_, idx) => idx !== i); }
+  function removeEq(i: number) { eqConsts = eqConsts.filter((_: string, idx: number) => idx !== i); }
   
   function addIneq() { ineqConsts = [...ineqConsts, ""]; }
-  function removeIneq(i: number) { ineqConsts = ineqConsts.filter((_, idx) => idx !== i); }
+  function removeIneq(i: number) { ineqConsts = ineqConsts.filter((_: string, idx: number) => idx !== i); }
 
 </script>
 
@@ -144,30 +144,34 @@
             <div class="setup-card p-6 flex flex-col gap-8">
               <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
-                  <label class="text-sm font-bold text-white tracking-wide">Step Size (α₀)</label>
+                  <label for="step-size-slider" class="text-sm font-bold text-white tracking-wide">Step Size (α₀)</label>
                   <span class="text-teal-400 font-mono text-lg bg-teal-500/10 px-3 py-1 rounded-lg">{stepSizeInit}</span>
                 </div>
-                <input type="range" min="0.01" max="10" step="0.01" bind:value={stepSizeInit} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
+                <input id="step-size-slider" type="range" min="0.01" max="10" step="0.01" bind:value={stepSizeInit} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
               </div>
 
               <div class="w-full h-px bg-white/5"></div>
 
               <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center">
-                  <label class="text-sm font-bold text-white tracking-wide">Max Iterations</label>
+                  <label for="max-iterations-slider" class="text-sm font-bold text-white tracking-wide">Max Iterations</label>
                   <span class="text-teal-400 font-mono text-lg bg-teal-500/10 px-3 py-1 rounded-lg">{maxIters}</span>
                 </div>
-                <input type="range" min="10" max="1000" bind:value={maxIters} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
+                <input id="max-iterations-slider" type="range" min="10" max="1000" bind:value={maxIters} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
               </div>
 
               <div class="w-full h-px bg-white/5"></div>
 
               <div class="flex justify-between items-center">
-                <label class="text-sm font-bold text-white flex flex-col gap-1">
+                <label for="advanced-mode-toggle" class="text-sm font-bold text-white flex flex-col gap-1">
                   Advanced Mode
                   <span class="text-xs text-zinc-500 font-normal">Show trajectory graphs</span>
                 </label>
-                <button 
+                <button
+                  id="advanced-mode-toggle"
+                  type="button"
+                  aria-label={advancedMode ? "Disable advanced mode" : "Enable advanced mode"}
+                  aria-pressed={advancedMode}
                   onclick={() => advancedMode = !advancedMode}
                   class="w-14 h-8 rounded-full transition-all relative {advancedMode ? 'bg-teal-500' : 'bg-[#0f131f] border border-white/10'}"
                 >
