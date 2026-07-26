@@ -69,7 +69,8 @@ export class NewtonOptimizer implements IOptimizer {
         c1,
         c2,
         0.5,
-        false 
+        false,
+        config.lineSearchMethod || "backtracking"
       );
       
       alpha = lineSearchResult.alpha;

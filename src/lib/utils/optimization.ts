@@ -11,11 +11,63 @@ const ce = new ComputeEngine();
 function getContext(xk: number[]): Record<string, number> {
   const context: Record<string, number> = {};
   xk.forEach((val, i) => {
-    context[`x_${i + 1}`] = val;      
-    context[`x_{${i + 1}}`] = val;    
-    context[`x${i + 1}`] = val;       
+    context[`x_${i + 1}`] = val;
+    context[`x_{${i + 1}}`] = val;
+    context[`x${i + 1}`] = val;
   });
   return context;
+}
+
+function splitCommaDelimitedItems(value: string): string[] {
+  return value
+    .trim()
+    .replace(/^\[|\]$/g, "")
+    .split(/\s*,\s*/)
+    .map(item => item.trim())
+    .filter(item => item.length > 0);
+}
+
+function parseBracketedVector(value: string): string[] | null {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+    return null;
+  }
+  const items = splitCommaDelimitedItems(trimmed);
+  return items.length > 1 ? items : null;
+}
+
+function parseBracketedMatrix(value: string): string[][] | null {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[[") || !trimmed.endsWith("]]")) {
+    return null;
+  }
+  const inner = trimmed.slice(1, -1).trim();
+  const rowStrings = inner.split(/\],\s*\[/).map(row => row.replace(/^\[|\]$/g, "").trim());
+  const rows = rowStrings.map(row => splitCommaDelimitedItems(row));
+  if (rows.every(r => r.length > 0)) {
+    return rows;
+  }
+  return null;
+}
+
+function expandBracketedGradientCell(matrix: string[][]): string[][] {
+  if (matrix.length === 1 && matrix[0].length === 1) {
+    const expanded = parseBracketedVector(matrix[0][0]);
+    if (expanded) {
+      return [expanded];
+    }
+  }
+  return matrix;
+}
+
+function expandBracketedHessianCell(matrix: string[][]): string[][] {
+  if (matrix.length === 1 && matrix[0].length === 1) {
+    const expanded = parseBracketedMatrix(matrix[0][0]);
+    if (expanded) {
+      return expanded;
+    }
+  }
+  return matrix;
 }
 
 export function parseObjective(latex: string): (x: number[]) => number {
@@ -28,10 +80,21 @@ export function parseObjective(latex: string): (x: number[]) => number {
   };
 }
 
+function parseExpressionList(expressions: string[]): any[] {
+  return expressions.map(expr => {
+    try {
+      return ce.parse(expr);
+    } catch (err: any) {
+      throw new Error(`Expresión inválida en el gradiente: "${expr}". ${err?.message ?? "Error de parseo."}`);
+    }
+  });
+}
+
 export function parseVectorFunction(stringVec: string[][]): (x: number[]) => number[] {
   // stringVec is nx1 (or 1xn)
-  const flat = stringVec.flat();
-  const exprs = flat.map(s => ce.parse(s));
+  const expanded = expandBracketedGradientCell(stringVec);
+  const flat = expanded.flat();
+  const exprs = parseExpressionList(flat);
   return (x: number[]) => {
     const ctx = getContext(x);
     return exprs.map(expr => {
@@ -42,7 +105,8 @@ export function parseVectorFunction(stringVec: string[][]): (x: number[]) => num
 }
 
 export function parseMatrixFunction(stringMat: string[][]): (x: number[]) => number[][] {
-  const exprs = stringMat.map(row => row.map(s => ce.parse(s)));
+  const expanded = expandBracketedHessianCell(stringMat);
+  const exprs = expanded.map(row => row.map(s => ce.parse(s)));
   return (x: number[]) => {
     const ctx = getContext(x);
     return exprs.map(row => row.map(expr => {
@@ -50,6 +114,65 @@ export function parseMatrixFunction(stringMat: string[][]): (x: number[]) => num
       return Number(val.valueOf() ?? 0);
     }));
   };
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function validateGradientOutput(output: unknown, expectedLength: number): void {
+  if (!Array.isArray(output)) {
+    throw new Error(`El gradiente analítico debe ser un vector, pero se obtuvo ${typeof output}.`);
+  }
+  if (output.length !== expectedLength) {
+    throw new Error(`El gradiente analítico debe tener longitud ${expectedLength}, pero devolvió ${output.length}.`);
+  }
+  output.forEach((value, index) => {
+    if (!isFiniteNumber(value)) {
+      throw new Error(`El gradiente analítico contiene un valor no numérico en la posición ${index + 1}: ${String(value)}.`);
+    }
+  });
+}
+
+function approximateGradient(f: (x: number[]) => number, x: number[]): number[] {
+  const h = 1e-6;
+  const base = f(x);
+  const grad: number[] = [];
+  for (let i = 0; i < x.length; i++) {
+    const xPlus = [...x];
+    const xMinus = [...x];
+    xPlus[i] += h;
+    xMinus[i] -= h;
+    const fPlus = f(xPlus);
+    const fMinus = f(xMinus);
+    grad.push((fPlus - fMinus) / (2 * h));
+  }
+  return grad;
+}
+
+function validateGradientMatchesObjective(
+  gradient: (x: number[]) => number[],
+  objective: (x: number[]) => number,
+  x0: number[],
+  tolerance: number = 1e-2
+): void {
+  const numericGradient = approximateGradient(objective, x0);
+  const analyticGradient = gradient(x0);
+  const differences = analyticGradient.map((value, index) => Math.abs(value - numericGradient[index]));
+  if (!differences.every(isFiniteNumber)) {
+    throw new Error("No se pudo validar el gradiente numérico en el punto inicial.");
+  }
+  const maxDiff = Math.max(...differences);
+  if (maxDiff > tolerance) {
+    const detail = differences.map((diff, index) => `∂${index + 1}: ${diff.toExponential(2)}`).join(", ");
+    throw new Error(`El gradiente no coincide con el gradiente numérico aproximado en x₀ (dif. máxima ${maxDiff.toFixed(6)}). ${detail}`);
+  }
+}
+
+function validateObjectiveOutput(output: unknown): void {
+  if (!isFiniteNumber(output)) {
+    throw new Error(`La función objetivo debe devolver un número finito, pero devolvió ${String(output)}.`);
+  }
 }
 
 export function runOptimization(
@@ -101,12 +224,30 @@ export function runOptimization(
   }
 
   // Parse Initial point x0
-  // Handle if x0 is Nx1 or 1xN
+  // Handle if x0 is Nx1 or 1xN, and allow bracketed vector syntax like [1, 2]
   let x0Str = x0Mat.flat();
+  if (x0Str.length === 1) {
+    const bracketed = parseBracketedVector(x0Str[0]);
+    if (bracketed) {
+      x0Str = bracketed;
+    }
+  }
+
   let x0 = x0Str.map(s => {
     const expr = ce.parse(s);
     return Number(expr.evaluate().valueOf() ?? 0);
   });
+
+  // Validate gradient correctness at the initial point before any optimization.
+  if (problem.gradient) {
+    try {
+      const gradAtX0 = problem.gradient(x0);
+      validateGradientOutput(gradAtX0, x0.length);
+      validateGradientMatchesObjective(problem.gradient, problem.objective, x0, config.tolerance || 1e-2);
+    } catch (err: any) {
+      throw new Error(`Gradiente inválido: ${err.message}`);
+    }
+  }
 
   let optimizer;
   switch (algorithm) {

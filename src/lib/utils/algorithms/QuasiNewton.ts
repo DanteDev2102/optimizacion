@@ -18,8 +18,8 @@ export class BFGSOptimizer implements IOptimizer {
     let xk = [...x0];
     const n = xk.length;
     
-    // Initial inverse hessian approximation: H0 = I
-    let Hk = identity(n) as number[][];
+    // Initial inverse Hessian approximation: H0 = I (keep plain arrays for mathjs operations)
+    let Hk = identity(n).toArray() as number[][];
     
     const iterations: IterationResult[] = [];
     let funcEvals = 0;
@@ -58,7 +58,8 @@ export class BFGSOptimizer implements IOptimizer {
         c1,
         c2,
         0.5,
-        true // Strong Wolfe condition
+        true, // Strong Wolfe condition
+        config.lineSearchMethod || "zoom"
       );
       
       alpha = lineSearchResult.alpha;
