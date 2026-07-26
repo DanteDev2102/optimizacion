@@ -37,6 +37,9 @@ export interface OptimizationResult {
   errorMessage?: string;
   isFeasible?: boolean;
   kktViolations?: string[];
+  licqSatisfied?: boolean;
+  stationaritySatisfied?: boolean;
+  lagrangeMultipliers?: number[];
 }
 
 export interface IOptimizer {

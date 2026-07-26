@@ -129,16 +129,20 @@ export function runOptimization(
   const result = optimizer.optimize(problem, x0, config);
 
   // Check KKT Conditions at the solution
-  if (problem.gradient && result.solution) {
+  if (result.solution) {
     const kkt = checkKKT(
       result.solution,
-      problem.gradient(result.solution),
+      problem.objective,
+      problem.gradient ? problem.gradient(result.solution) : null,
       problem.equalityConstraints,
       problem.inequalityConstraints,
       config.tolerance
     );
     result.isFeasible = kkt.isFeasible;
     result.kktViolations = kkt.violations;
+    result.licqSatisfied = kkt.licqSatisfied;
+    result.stationaritySatisfied = kkt.stationaritySatisfied;
+    result.lagrangeMultipliers = kkt.lagrangeMultipliers;
   }
 
   return result;

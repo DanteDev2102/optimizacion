@@ -81,7 +81,7 @@
 </svelte:head>
 
 <!-- TRUE FULLSCREEN RESPONSIVE LAYOUT -->
-<div class="absolute inset-0 flex flex-col lg:flex-row bg-[#0f131f] p-2 lg:p-4 gap-4 lg:gap-8 overflow-hidden">
+<div class="relative w-full h-full flex flex-col lg:flex-row bg-[#0f131f] p-2 lg:p-4 gap-4 lg:gap-8 overflow-hidden">
   
   <!-- LEFT PANEL: Setup (50% width on desktop) -->
   <div class="w-full lg:w-1/2 h-full flex-col overflow-y-auto custom-scrollbar 
