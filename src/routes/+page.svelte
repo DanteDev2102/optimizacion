@@ -20,7 +20,7 @@
   let maxIters = $state(50);
   let stepSizeInit = $state(1.0);
   let advancedMode = $state(false);
-  let lineSearchStrategy = $state<"backtracking" | "exact" | "constant">("backtracking");
+  let lineSearchStrategy = $state<"backtracking" | "zoom" | "constant">("backtracking");
   let mHistory = $state(5);
   
   let c1 = $state(1e-4);
@@ -153,6 +153,10 @@
       <CalculatorView 
         {result}
         {errorMsg}
+        objective={objective}
+        equalityConstraints={eqConsts}
+        inequalityConstraints={ineqConsts}
+        dimensions={x0Dims}
       />
     </div>
     </div>

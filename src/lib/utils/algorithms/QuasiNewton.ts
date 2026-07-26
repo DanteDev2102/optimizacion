@@ -9,7 +9,7 @@ export class BFGSOptimizer implements IOptimizer {
     x0: number[],
     config: OptimizationConfig
   ): OptimizationResult {
-    const { maxIterations, tolerance, c1, c2 } = config;
+    const { maxIterations, tolerance, stepSize, c1, c2 } = config;
     
     if (!problem.gradient) {
       throw new Error("BFGS requires an analytical gradient function.");
@@ -19,7 +19,7 @@ export class BFGSOptimizer implements IOptimizer {
     const n = xk.length;
     
     // Initial inverse Hessian approximation: H0 = I (keep plain arrays for mathjs operations)
-    let Hk = identity(n).toArray() as number[][];
+    let Hk = (identity(n) as any).toArray() as number[][];
     
     const iterations: IterationResult[] = [];
     let funcEvals = 0;
@@ -47,23 +47,32 @@ export class BFGSOptimizer implements IOptimizer {
              : (pkMat as unknown as number[]);
       if (!Array.isArray(pk)) pk = [pk];
 
-      // Line search (Wolfe conditions are highly recommended for BFGS)
-      let alpha = 1.0; 
-      const lineSearchResult = backtrackingLineSearch(
-        problem.objective,
-        problem.gradient,
-        xk,
-        pk,
-        alpha,
-        c1,
-        c2,
-        0.5,
-        true, // Strong Wolfe condition
-        config.lineSearchMethod || "zoom"
-      );
-      
-      alpha = lineSearchResult.alpha;
-      funcEvals += lineSearchResult.functionEvaluations;
+      let alpha = stepSize || 1.0; 
+      const strategy = config.lineSearchStrategy || config.lineSearchMethod || "zoom";
+
+      if (strategy === "constant") {
+        alpha = stepSize || 1.0;
+      } else {
+        const useWolfe = strategy === "zoom";
+        const method = strategy === "zoom" ? "zoom" : "backtracking";
+        const rho = config.contractionFactor ?? 0.5;
+
+        const lineSearchResult = backtrackingLineSearch(
+          problem.objective,
+          problem.gradient,
+          xk,
+          pk,
+          stepSize || 1.0,
+          c1 ?? 1e-4,
+          c2 ?? 0.9,
+          rho,
+          useWolfe,
+          method
+        );
+        
+        alpha = lineSearchResult.alpha;
+        funcEvals += lineSearchResult.functionEvaluations;
+      }
 
       const step = multiply(pk, alpha);
       const xkNext = add(xk, step) as number[];
@@ -166,15 +175,19 @@ export class DFPOptimizer implements IOptimizer {
       }
 
       // pk = -Hk * gk
-      let pkMat = multiply(multiply(Hk, -1), gk);
-      // Ensure pk is a flat JS Array of numbers
+      const pkMat = multiply(multiply(Hk, -1), gk) as unknown;
       let pk: number[] = [];
       if (Array.isArray(pkMat)) {
-         pk = pkMat.flat(Infinity) as number[];
-      } else if (pkMat && typeof (pkMat as any).valueOf === 'function') {
-         pk = (pkMat as any).valueOf().flat(Infinity) as number[];
+        pk = pkMat.flat(Infinity) as number[];
+      } else if (pkMat && typeof pkMat === "object" && "valueOf" in (pkMat as object)) {
+        const value = (pkMat as { valueOf: () => unknown }).valueOf();
+        if (Array.isArray(value)) {
+          pk = value.flat(Infinity) as number[];
+        } else {
+          pk = [Number(value)];
+        }
       } else {
-         pk = [pkMat as unknown as number];
+        pk = [Number(pkMat)];
       }
 
       // Line search (Wolfe conditions are highly recommended for Quasi-Newton)

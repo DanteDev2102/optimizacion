@@ -8,9 +8,17 @@
   let {
     result = null,
     errorMsg = null,
+    objective = null,
+    equalityConstraints = [],
+    inequalityConstraints = [],
+    dimensions = 2,
   } = $props<{
     result: OptimizationResult | null;
     errorMsg: string | null;
+    objective?: string | null;
+    equalityConstraints?: string[];
+    inequalityConstraints?: string[];
+    dimensions?: number;
   }>();
 
   function formatVector(vec: number[] | undefined): string {
@@ -25,9 +33,42 @@
     return `\\begin{bmatrix} ${mat.map(row => row.map(v => v.toFixed(4)).join(' & ')).join(' \\\\ ')} \\end{bmatrix}`;
   }
 
-  // Derive points for D3 Trajectory (using first two dimensions)
+  // Derive the full search path from both xk and xkNext so that the graph follows the actual steps taken
   let trajectoryPoints = $derived(
-    result ? result.iterations.map((i: IterationResult) => [i.xk[0] || 0, i.xk[1] || 0] as [number, number]) : []
+    result
+      ? result.iterations.flatMap((i: IterationResult) => {
+          const points: number[][] = [];
+          const current = i.xk.map((value: number) => Number(value));
+          const next = i.xkNext?.map((value: number) => Number(value));
+          if (current.length === 0) return points;
+          if (current.length === 1) {
+            points.push([current[0]]);
+          } else {
+            points.push([current[0], current[1]]);
+          }
+          if (next && next.length > 0) {
+            if (next.length === 1) {
+              points.push([next[0]]);
+            } else {
+              points.push([next[0], next[1]]);
+            }
+          }
+          return points;
+        })
+      : []
+  );
+
+  let iterationPoints = $derived(
+    result
+      ? result.iterations.flatMap((i: IterationResult) => {
+          const points: number[][] = [];
+          const current = i.xk.map((value: number) => Number(value));
+          const next = i.xkNext?.map((value: number) => Number(value));
+          if (current.length > 0) points.push(current.length === 1 ? [current[0]] : [current[0], current[1]]);
+          if (next && next.length > 0) points.push(next.length === 1 ? [next[0]] : [next[0], next[1]]);
+          return points;
+        })
+      : []
   );
 
   let activeTab = $state<"calculos" | "graficas">("calculos");
@@ -77,7 +118,7 @@
                 <div class="mt-1 flex items-center gap-2 flex-wrap">
                   Multiplicadores (λ, μ): 
                   <span class="bg-black/30 px-2 py-1 rounded text-teal-300 text-[10px]">
-                     [{result.lagrangeMultipliers.map(m => m.toFixed(4)).join(', ')}]
+                     [{result.lagrangeMultipliers.map((m: number) => m.toFixed(4)).join(', ')}]
                   </span>
                 </div>
               {/if}
@@ -186,27 +227,45 @@
       </button>
     </div>
 
-    <!-- Timeline Feed -->
-    <div class="flex-1 flex flex-col gap-6 w-full pt-4">
-      {#each result.iterations as iter, i}
-        <div class="flex flex-col rounded-3xl bg-[#1e2638] border border-white/5 overflow-hidden shadow-lg transition-all hover:border-white/10">
-          
-          <!-- Card Header -->
-          <div class="flex items-center justify-between px-6 py-4 bg-[#0a0d14]/50 border-b border-white/5">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400 font-bold font-mono text-sm">
-                {i}
+    {#if activeTab === 'graficas'}
+      {#if trajectoryPoints.length > 0}
+        <div class="w-full p-0" transition:slide>
+          <TrajectoryPlot
+            points={trajectoryPoints}
+            iterationPoints={iterationPoints}
+            highlightPoint={result?.solution?.map((value: number) => Number(value)) ?? null}
+            objective={objective}
+            equalityConstraints={equalityConstraints}
+            inequalityConstraints={inequalityConstraints}
+            dimensions={dimensions}
+            width={600}
+            height={320}
+          />
+        </div>
+      {:else}
+        <div class="text-sm text-zinc-400">No hay datos de trayectoria para graficar.</div>
+      {/if}
+    {:else}
+      <!-- Timeline Feed -->
+      <div class="flex-1 flex flex-col gap-6 w-full pt-4">
+        {#each result.iterations as iter, i}
+          <div class="flex flex-col rounded-3xl bg-[#1e2638] border border-white/5 overflow-hidden shadow-lg transition-all hover:border-white/10">
+            
+            <!-- Card Header -->
+            <div class="flex items-center justify-between px-6 py-4 bg-[#0a0d14]/50 border-b border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400 font-bold font-mono text-sm">
+                  {i}
+                </div>
+                <span class="text-sm font-bold tracking-[0.2em] text-zinc-300 uppercase">Iteración: {i}</span>
               </div>
-              <span class="text-sm font-bold tracking-[0.2em] text-zinc-300 uppercase">Iteración: {i}</span>
+              <span class="text-xs font-mono text-zinc-500 bg-black/20 px-3 py-1 rounded-lg">
+                f(x) = {iter.fxk.toFixed(6)}
+              </span>
             </div>
-            <span class="text-xs font-mono text-zinc-500 bg-black/20 px-3 py-1 rounded-lg">
-              f(x) = {iter.fxk.toFixed(6)}
-            </span>
-          </div>
-          
-          <!-- Card Content -->
-          <div class="p-6">
-            {#if activeTab === 'calculos'}
+            
+            <!-- Card Content -->
+            <div class="p-6">
               <div class="flex flex-col gap-6" transition:slide>
                 <!-- State Vector -->
                 <div class="w-full overflow-x-auto">
@@ -243,17 +302,11 @@
                   </div>
                 {/if}
               </div>
-            {:else}
-              <div transition:slide>
-                {#if trajectoryPoints.length > 0}
-                  <TrajectoryPlot points={trajectoryPoints.slice(0, i + 1)} width={600} height={280} />
-                {/if}
-              </div>
-            {/if}
+            </div>
+            
           </div>
-          
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
