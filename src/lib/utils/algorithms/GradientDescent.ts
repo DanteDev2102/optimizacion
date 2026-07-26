@@ -41,7 +41,8 @@ export class GradientDescentOptimizer implements IOptimizer {
         c1,
         c2,
         0.5,
-        false // Usually armijo is enough for steepest descent
+        false, // Usually armijo is enough for steepest descent
+        config.lineSearchMethod || "backtracking"
       );
       
       alpha = lineSearchResult.alpha;

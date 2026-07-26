@@ -41,12 +41,14 @@
   function focusEl(node: HTMLInputElement) {
     node.focus();
   }
+
+  const labelId = `matrix-builder-${Math.random().toString(36).slice(2, 8)}`;
 </script>
 
-<div class="flex flex-col gap-4 w-full">
+<div class="flex flex-col gap-4 w-full" role="group" aria-labelledby={labelId}>
   <!-- Header & Controls -->
   <div class="flex items-center justify-between">
-    <label class="text-xs font-bold tracking-wide text-teal-400 uppercase">{label}</label>
+    <span id={labelId} class="text-xs font-bold tracking-wide text-teal-400 uppercase">{label}</span>
     
     <div class="flex items-center gap-3">
       <div class="flex items-center gap-1">
