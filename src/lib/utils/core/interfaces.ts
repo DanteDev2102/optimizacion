@@ -15,6 +15,7 @@ export interface OptimizationConfig {
   lineSearchMethod?: "backtracking" | "zoom";
   populationSize?: number; // For GA
   generations?: number; // For GA
+  m?: number; // History size for L-BFGS (default 5)
 }
 
 export interface IterationResult {
