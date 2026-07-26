@@ -19,7 +19,7 @@ export class BFGSOptimizer implements IOptimizer {
     const n = xk.length;
     
     // Initial inverse Hessian approximation: H0 = I (keep plain arrays for mathjs operations)
-    let Hk = identity(n).toArray() as number[][];
+    let Hk = (identity(n) as any).toArray() as number[][];
     
     const iterations: IterationResult[] = [];
     let funcEvals = 0;
@@ -170,9 +170,9 @@ export class DFPOptimizer implements IOptimizer {
       // Ensure pk is a flat JS Array of numbers
       let pk: number[] = [];
       if (Array.isArray(pkMat)) {
-         pk = pkMat.flat(Infinity) as number[];
+         pk = (pkMat as any[]).flat(10) as number[];
       } else if (pkMat && typeof (pkMat as any).valueOf === 'function') {
-         pk = (pkMat as any).valueOf().flat(Infinity) as number[];
+         pk = (pkMat as any).valueOf().flat(10) as number[];
       } else {
          pk = [pkMat as unknown as number];
       }

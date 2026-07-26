@@ -13,7 +13,7 @@ export interface OptimizationConfig {
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
   contractionFactor?: number; // rho for Line Search
-  lineSearchMethod?: "backtracking" | "zoom" | string;
+  lineSearchMethod?: "backtracking" | "zoom";
   lineSearchStrategy?: "backtracking" | "exact" | "constant" | string;
   populationSize?: number; // For GA
   generations?: number; // For GA
