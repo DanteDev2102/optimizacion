@@ -13,10 +13,10 @@ export interface OptimizationConfig {
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
   contractionFactor?: number; // rho for Line Search
+  lineSearchMethod?: "backtracking" | "zoom";
   populationSize?: number; // For GA
   generations?: number; // For GA
-  lineSearchStrategy?: "backtracking" | "exact" | "constant"; // For advanced descent
-  mHistory?: number; // For L-BFGS memory
+  m?: number; // History size for L-BFGS (default 5)
 }
 
 export interface IterationResult {

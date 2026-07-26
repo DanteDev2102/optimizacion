@@ -31,10 +31,10 @@
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const xMin = d3.min(points, (d) => d[0]) ?? -10;
-    const xMax = d3.max(points, (d) => d[0]) ?? 10;
-    const yMin = d3.min(points, (d) => d[1]) ?? -10;
-    const yMax = d3.max(points, (d) => d[1]) ?? 10;
+    const xMin = d3.min<[number, number], number>(points, (d) => d[0]) ?? -10;
+    const xMax = d3.max<[number, number], number>(points, (d) => d[0]) ?? 10;
+    const yMin = d3.min<[number, number], number>(points, (d) => d[1]) ?? -10;
+    const yMax = d3.max<[number, number], number>(points, (d) => d[1]) ?? 10;
 
     const xPadding = Math.max(1, (xMax - xMin) * 0.1);
     const yPadding = Math.max(1, (yMax - yMin) * 0.1);
@@ -70,8 +70,8 @@
         .data(scale.ticks(5))
         .enter()
         .append("line")
-        .attr(axis === 'x' ? "x1" : "y1", (d) => scale(d))
-        .attr(axis === 'x' ? "x2" : "y2", (d) => scale(d))
+        .attr(axis === 'x' ? "x1" : "y1", (d: number) => scale(d))
+        .attr(axis === 'x' ? "x2" : "y2", (d: number) => scale(d))
         .attr(axis === 'x' ? "y1" : "x1", 0)
         .attr(axis === 'x' ? "y2" : "x2", axis === 'x' ? innerHeight : innerWidth)
         .attr("stroke", "#334155")
@@ -96,13 +96,13 @@
 
     // Points
     g.selectAll("circle")
-      .data(points)
+      .data(points as [number, number][])
       .enter()
       .append("circle")
-      .attr("cx", (d) => xScale(d[0]))
-      .attr("cy", (d) => yScale(d[1]))
+      .attr("cx", (d: [number, number]) => xScale(d[0]))
+      .attr("cy", (d: [number, number]) => yScale(d[1]))
       .attr("r", 4)
-      .attr("fill", (d, i) =>
+      .attr("fill", (d: [number, number], i: number) =>
         i === 0
           ? "#ef4444" // start: red
           : i === points.length - 1
@@ -110,7 +110,7 @@
             : "#60a5fa", // path: blue
       )
       .append("title")
-      .text((d, i) => `Iter ${i}: (${d[0].toFixed(4)}, ${d[1].toFixed(4)})`);
+      .text((d: [number, number], i: number) => `Iter ${i}: (${d[0].toFixed(4)}, ${d[1].toFixed(4)})`);
   }
 
   onMount(() => drawPlot());
