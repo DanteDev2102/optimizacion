@@ -12,6 +12,7 @@ export interface OptimizationConfig {
   stepSize?: number;
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
+  contractionFactor?: number; // rho for Line Search
   populationSize?: number; // For GA
   generations?: number; // For GA
   lineSearchStrategy?: "backtracking" | "exact" | "constant"; // For advanced descent

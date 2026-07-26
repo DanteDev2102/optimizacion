@@ -20,6 +20,9 @@
     advancedMode = $bindable(false),
     lineSearchStrategy = $bindable("backtracking"),
     mHistory = $bindable(5),
+    c1 = $bindable(1e-4),
+    c2 = $bindable(0.9),
+    contractionFactor = $bindable(0.5),
     onBegin,
     onClear
   } = $props<{
@@ -37,6 +40,9 @@
     advancedMode: boolean;
     lineSearchStrategy: "backtracking" | "exact" | "constant";
     mHistory: number;
+    c1: number;
+    c2: number;
+    contractionFactor: number;
     onBegin: () => void;
     onClear: () => void;
   }>();
@@ -150,54 +156,77 @@
           {#if sectionsOpen.parameters}
             <div transition:slide>
               <div class="setup-card p-4 flex flex-col gap-4">
-                <div class="flex flex-col gap-2">
-                  <div class="flex justify-between items-center">
-                    <label class="text-sm font-bold text-white tracking-wide">Step Size (α₀)</label>
-                    <span class="text-teal-400 font-mono text-lg bg-teal-500/10 px-3 py-1 rounded-lg">{stepSizeInit}</span>
-                  </div>
-                  <input type="range" min="0.01" max="10" step="0.01" bind:value={stepSizeInit} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
-                </div>
-
-                <div class="w-full h-px bg-white/5"></div>
-
+                <!-- Global Params -->
                 <div class="flex flex-col gap-2">
                   <div class="flex justify-between items-center">
                     <label class="text-sm font-bold text-white tracking-wide">Max Iterations</label>
-                    <span class="text-teal-400 font-mono text-lg bg-teal-500/10 px-3 py-1 rounded-lg">{maxIters}</span>
+                    <input type="number" min="1" bind:value={maxIters} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                   </div>
                   <input type="range" min="10" max="1000" bind:value={maxIters} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                 </div>
 
-                <div class="w-full h-px bg-white/5"></div>
-
-                <div class="flex flex-col gap-2">
-                  <div class="flex justify-between items-center">
-                    <label class="text-sm font-bold text-white tracking-wide">Line Search Strategy</label>
-                    <select 
-                      bind:value={lineSearchStrategy} 
-                      class="bg-[#0f131f] border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
-                    >
-                      <option value="backtracking">Backtracking (Armijo)</option>
-                      <option value="exact">Exact (Placeholder)</option>
-                      <option value="constant">Constant</option>
-                    </select>
-                  </div>
-                </div>
-
-                {#if algorithm === 'lbfgs'}
-                  <div class="w-full h-px bg-white/5" transition:slide></div>
-                  <div class="flex flex-col gap-2" transition:slide>
+                {#if algorithm !== 'ga'}
+                  <div class="w-full h-px bg-white/5"></div>
+                  <!-- Descent Specific Params -->
+                  <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center">
-                      <label class="text-sm font-bold text-white tracking-wide">L-BFGS Memory (m)</label>
-                      <span class="text-teal-400 font-mono text-lg bg-teal-500/10 px-3 py-1 rounded-lg">{mHistory}</span>
+                      <label class="text-sm font-bold text-white tracking-wide">Step Size (α₀)</label>
+                      <input type="number" min="0.01" step="0.01" bind:value={stepSizeInit} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                     </div>
-                    <input type="range" min="3" max="50" step="1" bind:value={mHistory} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
+                    <input type="range" min="0.01" max="10" step="0.01" bind:value={stepSizeInit} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                   </div>
+
+                  <div class="w-full h-px bg-white/5"></div>
+
+                  <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                      <label class="text-sm font-bold text-white tracking-wide">Line Search Strategy</label>
+                      <select 
+                        bind:value={lineSearchStrategy} 
+                        class="bg-[#0f131f] border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
+                      >
+                        <option value="backtracking">Backtracking (Armijo)</option>
+                        <option value="exact">Exact (Placeholder)</option>
+                        <option value="constant">Constant</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {#if lineSearchStrategy === 'backtracking'}
+                    <div class="flex flex-col gap-2 mt-2">
+                      <div class="flex justify-between items-center">
+                        <label class="text-sm font-bold text-white tracking-wide">Armijo (c₁)</label>
+                        <input type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-2">
+                      <div class="flex justify-between items-center">
+                        <label class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
+                        <input type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mt-2">
+                      <div class="flex justify-between items-center">
+                        <label class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
+                        <input type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      </div>
+                    </div>
+                  {/if}
+
+                  {#if algorithm === 'lbfgs'}
+                    <div class="w-full h-px bg-white/5 mt-2" transition:slide></div>
+                    <div class="flex flex-col gap-2 mt-2" transition:slide>
+                      <div class="flex justify-between items-center">
+                        <label class="text-sm font-bold text-white tracking-wide">L-BFGS Memory (m)</label>
+                        <input type="number" min="3" max="50" step="1" bind:value={mHistory} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      </div>
+                    </div>
+                  {/if}
                 {/if}
 
-                <div class="w-full h-px bg-white/5"></div>
+                <div class="w-full h-px bg-white/5 mt-2"></div>
 
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mt-2">
                   <label class="text-sm font-bold text-white flex flex-col gap-1">
                     Advanced Mode
                     <span class="text-xs text-zinc-500 font-normal">Show trajectory graphs</span>

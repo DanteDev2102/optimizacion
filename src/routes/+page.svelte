@@ -22,6 +22,10 @@
   let advancedMode = $state(false);
   let lineSearchStrategy = $state<"backtracking" | "exact" | "constant">("backtracking");
   let mHistory = $state(5);
+  
+  let c1 = $state(1e-4);
+  let c2 = $state(0.9);
+  let contractionFactor = $state(0.5);
 
   let result = $state<OptimizationResult | null>(null);
   let errorMsg = $state<string | null>(null);
@@ -41,6 +45,9 @@
     advancedMode = false;
     lineSearchStrategy = "backtracking";
     mHistory = 5;
+    c1 = 1e-4;
+    c2 = 0.9;
+    contractionFactor = 0.5;
     result = null;
     errorMsg = null;
     isMinimized = false;
@@ -63,12 +70,13 @@
           tolerance: parseFloat(tol) || 0.001,
           stepSize: stepSizeInit,
           maxIterations: maxIters,
-          c1: 1e-4,
-          c2: 0.9,
+          c1,
+          c2,
           populationSize: 50,
           generations: maxIters,
           lineSearchStrategy,
-          mHistory
+          mHistory,
+          contractionFactor
         },
         eqConsts,
         ineqConsts
@@ -108,9 +116,8 @@
   <!-- MAIN CONTENT SPLIT -->
   <div class="flex-1 flex flex-row overflow-hidden relative">
     
-    <!-- LEFT PANEL: Setup -->
     <div class="h-full flex-col transition-all duration-500 ease-in-out bg-[#0f131f] flex shrink-0
-                {isMinimized ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-[400px] opacity-100'}">
+                {isMinimized ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-[500px] opacity-100'}">
       
       <!-- Fluid content wrapper -->
       <div class="w-full h-full min-w-[300px]">
@@ -129,6 +136,9 @@
         bind:advancedMode
         bind:lineSearchStrategy
         bind:mHistory
+        bind:c1
+        bind:c2
+        bind:contractionFactor
         onBegin={calculate}
         onClear={clearAll}
       />
