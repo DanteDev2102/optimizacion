@@ -45,7 +45,7 @@
       </div>
     {:else if result}
       <div class="flex flex-col gap-2 w-full animate-fade-in">
-        <div class="flex justify-between items-end mb-2">
+        <div class="flex justify-start items-center gap-3 mb-2">
           <span class="text-xs font-bold uppercase tracking-wider text-teal-500 bg-teal-500/10 px-2 py-1 rounded-md">
             {result.exitCondition}
           </span>
