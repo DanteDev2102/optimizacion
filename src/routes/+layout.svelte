@@ -13,7 +13,7 @@
   ></div>
 
   <!-- Main Content -->
-  <main class="flex-1 container mx-auto px-4 py-8 relative z-10">
+  <main class="flex-1 w-full relative z-10">
     {@render children()}
   </main>
 </div>
