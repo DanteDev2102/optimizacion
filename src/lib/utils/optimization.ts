@@ -53,7 +53,7 @@ export function parseMatrixFunction(stringMat: string[][]): (x: number[]) => num
 }
 
 export function runOptimization(
-  algorithm: "gradient" | "newton" | "bfgs" | "ga",
+  algorithm: "gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga",
   objectiveLatex: string,
   gradientMat: string[][] | null,
   hessianMat: string[][] | null,
@@ -86,9 +86,9 @@ export function runOptimization(
     throw new Error("Constraints are only supported using the Penalty Method in the Genetic Algorithm (GA) right now. Analytical methods (Newton/BFGS/Gradient) require unconstrained formulations.");
   }
 
-  if (algorithm === "newton" || algorithm === "bfgs" || algorithm === "gradient") {
+  if (algorithm === "newton" || algorithm === "bfgs" || algorithm === "dfp" || algorithm === "lbfgs" || algorithm === "gradient") {
     if (!gradientMat || gradientMat.length === 0 || gradientMat[0].length === 0 || gradientMat[0][0] === "") {
-      throw new Error(`The ${algorithm} algorithm requires the Gradient vector to be provided.`);
+      throw new Error(`The ${algorithm.toUpperCase()} algorithm requires the Gradient vector to be provided.`);
     }
     problem.gradient = parseVectorFunction(gradientMat);
   }
@@ -119,6 +119,10 @@ export function runOptimization(
     case "bfgs":
       optimizer = new BFGSOptimizer();
       break;
+    case "dfp":
+      throw new Error("DFP algorithm is pending backend integration.");
+    case "lbfgs":
+      throw new Error("L-BFGS algorithm is pending backend integration.");
     case "ga":
       optimizer = new GeneticAlgorithmOptimizer();
       break;
@@ -138,7 +142,16 @@ export function runOptimization(
       config.tolerance
     );
     result.isFeasible = kkt.isFeasible;
-    result.kktViolations = kkt.violations;
+    // Map to the new detailed structure if possible, for now we map what we have from checkKKT
+    // In the future, checkKKT will return the full detailed structure.
+    result.kktAnalysis = {
+      isFeasible: kkt.isFeasible,
+      stationarity: kkt.violations.filter(v => v.toLowerCase().includes('stationarity')).length === 0,
+      complementarity: kkt.violations.filter(v => v.toLowerCase().includes('complementarity')).length === 0,
+      lagrangeMultipliersEq: [], // Pending backend 
+      lagrangeMultipliersIneq: [], // Pending backend
+      violations: kkt.violations
+    };
   }
 
   return result;

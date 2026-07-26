@@ -1,13 +1,14 @@
 <script lang="ts">
   import SetupView from "$lib/components/SetupView.svelte";
   import CalculatorView from "$lib/components/CalculatorView.svelte";
+  import { Calculator, PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
   import { runOptimization } from "$lib/utils/optimization";
   import type { OptimizationResult } from "$lib/utils/core/interfaces";
 
-  let view = $state<"setup" | "calculator">("setup");
+  let isMinimized = $state(false);
   
   // States
-  let algorithm = $state<"gradient" | "newton" | "bfgs" | "ga">("newton");
+  let algorithm = $state<"gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga">("newton");
   let objective = $state("x_1^2 + x_2^2");
   let x0Dims = $state(2);
   let x0Mat = $state([["1", "1"]]);
@@ -19,6 +20,8 @@
   let maxIters = $state(50);
   let stepSizeInit = $state(1.0);
   let advancedMode = $state(false);
+  let lineSearchStrategy = $state<"backtracking" | "exact" | "constant">("backtracking");
+  let mHistory = $state(5);
 
   let result = $state<OptimizationResult | null>(null);
   let errorMsg = $state<string | null>(null);
@@ -35,15 +38,20 @@
     tol = "0.001";
     maxIters = 50;
     stepSizeInit = 1.0;
+    advancedMode = false;
+    lineSearchStrategy = "backtracking";
+    mHistory = 5;
     result = null;
     errorMsg = null;
-    view = "setup";
+    isMinimized = false;
   }
 
   function calculate() {
     errorMsg = null;
     result = null;
-    view = "calculator"; // For mobile toggle
+    if (typeof window !== 'undefined' && window.innerWidth < 750) {
+      isMinimized = true;
+    }
     try {
       result = runOptimization(
         algorithm,
@@ -58,7 +66,9 @@
           c1: 1e-4,
           c2: 0.9,
           populationSize: 50,
-          generations: maxIters
+          generations: maxIters,
+          lineSearchStrategy,
+          mHistory
         },
         eqConsts,
         ineqConsts
@@ -81,15 +91,31 @@
 </svelte:head>
 
 <!-- TRUE FULLSCREEN RESPONSIVE LAYOUT -->
-<div class="absolute inset-0 flex flex-col lg:flex-row bg-[#0f131f] p-2 lg:p-4 gap-4 lg:gap-8 overflow-hidden">
+<div class="absolute inset-0 flex flex-col bg-[#0f131f] overflow-hidden">
   
-  <!-- LEFT PANEL: Setup (50% width on desktop) -->
-  <div class="w-full lg:w-1/2 h-full flex-col overflow-y-auto custom-scrollbar 
-              {view === 'setup' ? 'flex' : 'hidden lg:flex'}">
-    <!-- Fluid content with generous padding but no max-width restriction -->
-    <div class="w-full py-6 lg:py-8 px-4 lg:px-8">
-      <SetupView 
-        bind:algorithm
+  <!-- GLOBAL HEADER -->
+  <header class="w-full h-14 shrink-0 border-b border-white/5 px-6 lg:px-8 flex items-center gap-3 bg-[#0f131f] z-10">
+    <button onclick={() => isMinimized = !isMinimized} class="p-2 -ml-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+      {#if isMinimized}
+        <PanelLeftOpen class="w-6 h-6" />
+      {:else}
+        <PanelLeftClose class="w-6 h-6" />
+      {/if}
+    </button>
+    <h1 class="text-xl font-bold text-white tracking-wide truncate capitalize">Optimization Setup</h1>
+  </header>
+
+  <!-- MAIN CONTENT SPLIT -->
+  <div class="flex-1 flex flex-row overflow-hidden relative">
+    
+    <!-- LEFT PANEL: Setup -->
+    <div class="h-full flex-col transition-all duration-500 ease-in-out bg-[#0f131f] flex shrink-0
+                {isMinimized ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-[400px] opacity-100'}">
+      
+      <!-- Fluid content wrapper -->
+      <div class="w-full h-full min-w-[300px]">
+        <SetupView 
+          bind:algorithm
         bind:objective
         bind:x0Dims
         bind:x0Mat
@@ -101,23 +127,24 @@
         bind:maxIters
         bind:stepSizeInit
         bind:advancedMode
+        bind:lineSearchStrategy
+        bind:mHistory
         onBegin={calculate}
         onClear={clearAll}
       />
+      </div>
     </div>
-  </div>
 
-  <!-- RIGHT PANEL: Calculator / Results Sidebar (50% width on desktop) -->
-  <div class="w-full lg:w-1/2 h-full flex-col relative overflow-hidden lg:border-l lg:border-white/5
-              {view === 'calculator' ? 'flex' : 'hidden lg:flex'}">
+    <!-- RIGHT PANEL: Calculator / Results Sidebar -->
+    <div class="h-full flex-col relative overflow-hidden transition-all duration-500 ease-in-out bg-[#141926] lg:border-l lg:border-white/5
+                flex flex-1 min-w-full lg:min-w-0">
     
-    <div class="w-full h-full py-6 lg:py-8 px-4 lg:px-8 overflow-y-auto custom-scrollbar">
+    <div class="w-full h-full p-6 lg:p-8 overflow-y-auto custom-scrollbar">
       <CalculatorView 
         {result}
         {errorMsg}
-        onBack={() => view = 'setup'}
       />
     </div>
+    </div>
   </div>
-  
 </div>

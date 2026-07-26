@@ -14,6 +14,8 @@ export interface OptimizationConfig {
   c2?: number; // Wolfe parameter
   populationSize?: number; // For GA
   generations?: number; // For GA
+  lineSearchStrategy?: "backtracking" | "exact" | "constant"; // For advanced descent
+  mHistory?: number; // For L-BFGS memory
 }
 
 export interface IterationResult {
@@ -29,14 +31,23 @@ export interface IterationResult {
   isFeasible?: boolean; // For constrained problems
 }
 
+export interface KKTAnalysis {
+  isFeasible: boolean;
+  stationarity: boolean;
+  complementarity: boolean;
+  lagrangeMultipliersEq: number[]; // Lambda values
+  lagrangeMultipliersIneq: number[]; // Mu values
+  violations: string[];
+}
+
 export interface OptimizationResult {
   solution: number[];
   iterations: IterationResult[];
   functionEvaluations: number;
   exitCondition: "TOLERANCE_MET" | "MAX_ITERATIONS" | "DIVERGENCE" | "ERROR";
   errorMessage?: string;
-  isFeasible?: boolean;
-  kktViolations?: string[];
+  isFeasible?: boolean; // Kept for unconstrained/simple checks
+  kktAnalysis?: KKTAnalysis;
 }
 
 export interface IOptimizer {
