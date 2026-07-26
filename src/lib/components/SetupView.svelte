@@ -38,7 +38,7 @@
     maxIters: number;
     stepSizeInit: number;
     advancedMode: boolean;
-    lineSearchStrategy: "backtracking" | "exact" | "constant";
+    lineSearchStrategy: "backtracking" | "zoom" | "constant";
     mHistory: number;
     c1: number;
     c2: number;
@@ -174,31 +174,35 @@
                         class="bg-[#0f131f] border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
                       >
                         <option value="backtracking">Backtracking (Armijo)</option>
-                        <option value="exact">Exact (Placeholder)</option>
+                        <option value="zoom">Strong Wolfe (Zoom / Cubic)</option>
                         <option value="constant">Constant</option>
                       </select>
                     </div>
                   </div>
                   
-                  {#if lineSearchStrategy === 'backtracking'}
+                  {#if lineSearchStrategy === 'backtracking' || lineSearchStrategy === 'zoom'}
                     <div class="flex flex-col gap-2 mt-2">
                       <div class="flex justify-between items-center">
                         <label class="text-sm font-bold text-white tracking-wide">Armijo (c₁)</label>
                         <input type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
                     </div>
-                    <div class="flex flex-col gap-2 mt-2">
-                      <div class="flex justify-between items-center">
-                        <label class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
-                        <input type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                    {#if lineSearchStrategy === 'zoom'}
+                      <div class="flex flex-col gap-2 mt-2">
+                        <div class="flex justify-between items-center">
+                          <label class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
+                          <input type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        </div>
                       </div>
-                    </div>
-                    <div class="flex flex-col gap-2 mt-2">
-                      <div class="flex justify-between items-center">
-                        <label class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
-                        <input type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                    {/if}
+                    {#if lineSearchStrategy === 'backtracking'}
+                      <div class="flex flex-col gap-2 mt-2">
+                        <div class="flex justify-between items-center">
+                          <label class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
+                          <input type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        </div>
                       </div>
-                    </div>
+                    {/if}
                   {/if}
 
                   {#if algorithm === 'lbfgs'}
