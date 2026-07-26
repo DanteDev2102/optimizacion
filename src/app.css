@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-lg: 750px;
+}
+
 @layer base {
   :root {
     --bg-navy: #161c2d;

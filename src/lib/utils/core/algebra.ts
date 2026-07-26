@@ -53,5 +53,6 @@ export function getModifiedHessian(hessian: number[][]): number[][] {
  * Computes vector norm
  */
 export function vectorNorm(v: number[]): number {
-  return Number(squeeze(norm(v)));
+  const result = norm(v) as unknown;
+  return typeof result === "number" ? result : Number(squeeze(result as any));
 }

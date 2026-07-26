@@ -12,8 +12,11 @@ export interface OptimizationConfig {
   stepSize?: number;
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
+  contractionFactor?: number; // rho for Line Search
+  lineSearchMethod?: "backtracking" | "zoom";
   populationSize?: number; // For GA
   generations?: number; // For GA
+  m?: number; // History size for L-BFGS (default 5)
 }
 
 export interface IterationResult {
@@ -29,6 +32,15 @@ export interface IterationResult {
   isFeasible?: boolean; // For constrained problems
 }
 
+export interface KKTAnalysis {
+  isFeasible: boolean;
+  stationarity: boolean;
+  complementarity: boolean;
+  lagrangeMultipliersEq: number[]; // Lambda values
+  lagrangeMultipliersIneq: number[]; // Mu values
+  violations: string[];
+}
+
 export interface OptimizationResult {
   solution: number[];
   iterations: IterationResult[];
@@ -40,6 +52,7 @@ export interface OptimizationResult {
   licqSatisfied?: boolean;
   stationaritySatisfied?: boolean;
   lagrangeMultipliers?: number[];
+  kktAnalysis?: KKTAnalysis;
 }
 
 export interface IOptimizer {
