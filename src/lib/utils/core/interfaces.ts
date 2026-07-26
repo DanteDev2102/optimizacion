@@ -13,10 +13,12 @@ export interface OptimizationConfig {
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
   contractionFactor?: number; // rho for Line Search
-  lineSearchMethod?: "backtracking" | "zoom";
+  lineSearchMethod?: "backtracking" | "zoom" | string;
+  lineSearchStrategy?: "backtracking" | "exact" | "constant" | string;
   populationSize?: number; // For GA
   generations?: number; // For GA
   m?: number; // History size for L-BFGS (default 5)
+  mHistory?: number;
 }
 
 export interface IterationResult {
@@ -47,7 +49,11 @@ export interface OptimizationResult {
   functionEvaluations: number;
   exitCondition: "TOLERANCE_MET" | "MAX_ITERATIONS" | "DIVERGENCE" | "ERROR";
   errorMessage?: string;
-  isFeasible?: boolean; // Kept for unconstrained/simple checks
+  isFeasible?: boolean;
+  kktViolations?: string[];
+  licqSatisfied?: boolean;
+  stationaritySatisfied?: boolean;
+  lagrangeMultipliers?: number[];
   kktAnalysis?: KKTAnalysis;
 }
 

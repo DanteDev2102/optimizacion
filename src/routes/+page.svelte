@@ -99,7 +99,7 @@
 </svelte:head>
 
 <!-- TRUE FULLSCREEN RESPONSIVE LAYOUT -->
-<div class="absolute inset-0 flex flex-col bg-[#0f131f] overflow-hidden">
+<div class="relative w-full h-full flex flex-col bg-[#0f131f] overflow-hidden">
   
   <!-- GLOBAL HEADER -->
   <header class="w-full h-14 shrink-0 border-b border-white/5 px-6 lg:px-8 flex items-center gap-3 bg-[#0f131f] z-10">

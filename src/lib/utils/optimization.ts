@@ -274,23 +274,27 @@ export function runOptimization(
   const result = optimizer.optimize(problem, x0, config);
 
   // Check KKT Conditions at the solution
-  if (problem.gradient && result.solution) {
+  if (result.solution) {
     const kkt = checkKKT(
       result.solution,
-      problem.gradient(result.solution),
+      problem.objective,
+      problem.gradient ? problem.gradient(result.solution) : null,
       problem.equalityConstraints,
       problem.inequalityConstraints,
       config.tolerance
     );
     result.isFeasible = kkt.isFeasible;
-    // Map to the new detailed structure if possible, for now we map what we have from checkKKT
-    // In the future, checkKKT will return the full detailed structure.
+    result.kktViolations = kkt.violations;
+    result.licqSatisfied = kkt.licqSatisfied;
+    result.stationaritySatisfied = kkt.stationaritySatisfied;
+    result.lagrangeMultipliers = kkt.lagrangeMultipliers;
+
     result.kktAnalysis = {
       isFeasible: kkt.isFeasible,
-      stationarity: kkt.violations.filter(v => v.toLowerCase().includes('stationarity')).length === 0,
+      stationarity: kkt.stationaritySatisfied,
       complementarity: kkt.violations.filter(v => v.toLowerCase().includes('complementarity')).length === 0,
-      lagrangeMultipliersEq: [], // Pending backend 
-      lagrangeMultipliersIneq: [], // Pending backend
+      lagrangeMultipliersEq: kkt.lagrangeMultipliers || [],
+      lagrangeMultipliersIneq: kkt.lagrangeMultipliers || [],
       violations: kkt.violations
     };
   }

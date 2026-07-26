@@ -56,7 +56,36 @@
           <Latex math="x^* \approx {formatVector(result.solution)}" />
         </div>
         
-        <!-- KKT Analysis Dashboard -->
+        <!-- Feasibility & KKT Check (Direct Metrics) -->
+        {#if result.kktViolations && result.kktViolations.length > 0}
+          <div class="w-full bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex flex-col gap-1 text-left mt-2">
+            <span class="text-xs font-bold uppercase text-red-400 flex items-center gap-1"><AlertTriangle class="w-4 h-4"/> Infeasible / KKT Violated:</span>
+            <ul class="list-disc pl-5 text-xs text-red-300/80">
+              {#each result.kktViolations as v}
+                <li>{v}</li>
+              {/each}
+            </ul>
+          </div>
+        {:else if result.isFeasible !== undefined && result.isFeasible}
+          <div class="w-full bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex flex-col gap-2 text-left mt-2">
+            <span class="text-xs font-bold uppercase text-green-400 flex items-center gap-1"><CheckCircle2 class="w-4 h-4" /> Optimal KKT Point Found!</span>
+            <div class="flex flex-col gap-1 pl-5 text-xs text-green-300/80 font-mono mt-1 border-l border-green-500/30">
+              <div>Factibilidad Primal: ✅ Satisfecha</div>
+              <div>LICQ (Independencia Lineal): {result.licqSatisfied ? '✅ Satisfecha' : '❌ Falló'}</div>
+              <div>Estacionariedad (Lagrangiano): {result.stationaritySatisfied ? '✅ Satisfecha' : '❌ Falló'}</div>
+              {#if result.lagrangeMultipliers && result.lagrangeMultipliers.length > 0}
+                <div class="mt-1 flex items-center gap-2 flex-wrap">
+                  Multiplicadores (λ, μ): 
+                  <span class="bg-black/30 px-2 py-1 rounded text-teal-300 text-[10px]">
+                     [{result.lagrangeMultipliers.map(m => m.toFixed(4)).join(', ')}]
+                  </span>
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
+
+        <!-- KKT Analysis Dashboard (Structured) -->
         {#if result.kktAnalysis}
           <div class="w-full bg-[#1e2638]/50 border border-white/5 rounded-2xl p-4 flex flex-col gap-4 text-left mt-2 shadow-inner" transition:slide>
             
@@ -134,7 +163,6 @@
                 </ul>
               </div>
             {/if}
-
           </div>
         {/if}
       </div>
