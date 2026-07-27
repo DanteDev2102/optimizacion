@@ -85,6 +85,45 @@
       errorMsg = err.message || "Ocurrió un error en el cálculo.";
     }
   }
+
+  // Auto-detect dimensions from objective function
+  $effect(() => {
+    if (!objective) return;
+    
+    // MathLive outputs x_1 or x_{12}, so we match both
+    const matches = [...objective.matchAll(/x_\{?(\d+)\}?/g)];
+    let newDims = 1;
+    if (matches.length > 0) {
+      newDims = Math.max(...matches.map(m => parseInt(m[1], 10)));
+    }
+    
+    if (newDims !== x0Dims) {
+      x0Dims = newDims;
+      
+      // Resize x0Mat (1 x n)
+      const newX0 = Array(1).fill(null).map(() => Array(newDims).fill("0"));
+      for (let c = 0; c < Math.min(newDims, x0Mat[0]?.length || 0); c++) {
+        newX0[0][c] = x0Mat[0][c] || "0";
+      }
+      x0Mat = newX0;
+
+      // Resize gradMat (1 x n)
+      const newGrad = Array(1).fill(null).map(() => Array(newDims).fill("0"));
+      for (let c = 0; c < Math.min(newDims, gradMat[0]?.length || 0); c++) {
+        newGrad[0][c] = gradMat[0][c] || "0";
+      }
+      gradMat = newGrad;
+
+      // Resize hessMat (n x n)
+      const newHess = Array(newDims).fill(null).map(() => Array(newDims).fill("0"));
+      for (let r = 0; r < Math.min(newDims, hessMat.length); r++) {
+        for (let c = 0; c < Math.min(newDims, hessMat[r]?.length || 0); c++) {
+          newHess[r][c] = hessMat[r][c] || "0";
+        }
+      }
+      hessMat = newHess;
+    }
+  });
 </script>
 
 <svelte:head>

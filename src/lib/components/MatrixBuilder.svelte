@@ -8,7 +8,8 @@
     label = "Matrix",
     type = "matrix",
     value = $bindable([["0", "0"], ["0", "0"]]),
-    focusedCell = $bindable<{r: number, c: number} | null>(null)
+    focusedCell = $bindable<{r: number, c: number} | null>(null),
+    readonlyDimensions = false
   } = $props<{
     rows?: number;
     cols?: number;
@@ -16,6 +17,7 @@
     type?: "matrix" | "vector";
     value: string[][];
     focusedCell?: {r: number, c: number} | null;
+    readonlyDimensions?: boolean;
   }>();
 
   function updateDim() {
@@ -51,13 +53,15 @@
     <span id={labelId} class="text-xs font-bold tracking-wide text-teal-400 uppercase">{label}</span>
     
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-1">
-        <button onclick={decRows} class="w-6 h-6 flex items-center justify-center rounded-full bg-[#1e2638] text-zinc-400 hover:text-white"><Minus class="w-3 h-3"/></button>
-        <span class="text-xs font-mono w-4 text-center">{rows}</span>
-        <button onclick={incRows} class="w-6 h-6 flex items-center justify-center rounded-full bg-[#1e2638] text-zinc-400 hover:text-white"><Plus class="w-3 h-3"/></button>
-      </div>
-      {#if type === 'matrix'}
-        <span class="text-xs text-zinc-600">×</span>
+      {#if !readonlyDimensions}
+        {#if type === 'matrix'}
+          <div class="flex items-center gap-1">
+            <button onclick={decRows} class="w-6 h-6 flex items-center justify-center rounded-full bg-[#1e2638] text-zinc-400 hover:text-white"><Minus class="w-3 h-3"/></button>
+            <span class="text-xs font-mono w-4 text-center">{rows}</span>
+            <button onclick={incRows} class="w-6 h-6 flex items-center justify-center rounded-full bg-[#1e2638] text-zinc-400 hover:text-white"><Plus class="w-3 h-3"/></button>
+          </div>
+          <span class="text-xs text-zinc-600">×</span>
+        {/if}
         <div class="flex items-center gap-1">
           <button onclick={decCols} class="w-6 h-6 flex items-center justify-center rounded-full bg-[#1e2638] text-zinc-400 hover:text-white"><Minus class="w-3 h-3"/></button>
           <span class="text-xs font-mono w-4 text-center">{cols}</span>
