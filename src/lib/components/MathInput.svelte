@@ -6,10 +6,12 @@
     value = $bindable(""),
     label = "",
     placeholder = "",
+    autofocus = false,
   } = $props<{
     value?: string;
     label?: string;
     placeholder?: string;
+    autofocus?: boolean;
   }>();
 
   let mathfield: MathfieldElement | null = $state(null);
@@ -24,6 +26,13 @@
         mathfield = document.createElement("math-field") as MathfieldElement;
         // Setup the mathfield
         mathfield.value = value;
+        
+        if (autofocus) {
+          setTimeout(() => {
+            mathfield?.focus();
+          }, 50);
+        }
+
         if (placeholder) {
           // MathLive placeholder (sometimes requires config)
           // We'll leave it empty for simplicity or use text.

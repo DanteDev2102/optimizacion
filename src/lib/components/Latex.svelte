@@ -24,5 +24,11 @@
 <style>
   .latex-container {
     color: inherit;
+    white-space: nowrap;
+  }
+  
+  :global(.latex-container .katex),
+  :global(.latex-container .katex *) {
+    white-space: nowrap !important;
   }
 </style>
