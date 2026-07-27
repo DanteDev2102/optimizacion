@@ -145,3 +145,27 @@ export function getPenalizedObjective(
     return f(x) + r * penalty;
   };
 }
+
+/**
+ * Creates a Logarithmic Barrier objective function (Interior Point Method)
+ * B(x) = f(x) - mu * sum( ln(-g_i(x)) )
+ */
+export function getLogarithmicBarrierObjective(
+  f: (x: number[]) => number,
+  mu: number,
+  ineqConst: Array<(x: number[]) => number> = []
+): (x: number[]) => number {
+  return (x: number[]) => {
+    let barrier = 0;
+    for (const g of ineqConst) {
+      const val = g(x);
+      if (val >= 0) {
+        // If it violates the constraint (g(x) >= 0 in standard form g(x) <= 0),
+        // the barrier shoots to infinity.
+        return Infinity;
+      }
+      barrier += Math.log(-val);
+    }
+    return f(x) - mu * barrier;
+  };
+}
