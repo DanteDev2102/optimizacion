@@ -9,7 +9,7 @@ export class NewtonOptimizer implements IOptimizer {
     x0: number[],
     config: OptimizationConfig
   ): OptimizationResult {
-    const { maxIterations, tolerance, stepSize, c1, c2 } = config;
+    const { maxIterations, tolerance, toleranceX, stepSize, c1, c2 } = config;
     
     if (!problem.gradient || !problem.hessian) {
       throw new Error("Newton's method requires BOTH analytical gradient and hessian functions.");
@@ -99,6 +99,15 @@ export class NewtonOptimizer implements IOptimizer {
         xkNext: [...xkNext],
         normGrad: normG
       });
+
+      if (toleranceX !== undefined && vectorNorm(step as number[]) < toleranceX) {
+        return {
+          solution: xkNext,
+          iterations,
+          functionEvaluations: funcEvals,
+          exitCondition: "TOLERANCE_MET"
+        };
+      }
 
       xk = xkNext;
     }

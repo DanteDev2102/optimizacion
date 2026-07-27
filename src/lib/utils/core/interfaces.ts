@@ -9,6 +9,7 @@ export interface IOptimizationProblem {
 export interface OptimizationConfig {
   maxIterations: number;
   tolerance: number;
+  toleranceX?: number; // Tolerance for change in variables (epsilon 2)
   stepSize?: number;
   c1?: number; // Armijo parameter
   c2?: number; // Wolfe parameter
@@ -17,6 +18,9 @@ export interface OptimizationConfig {
   lineSearchStrategy?: "backtracking" | "exact" | "constant" | string;
   populationSize?: number; // For GA
   generations?: number; // For GA
+  searchBounds?: { min: number[], max: number[] }; // For GA global exploration
+  penaltyMethod?: "external" | "barrier"; // Constraint handling
+  penaltyInitial?: number; // Initial mu/r value for penalty/barrier
   m?: number; // History size for L-BFGS (default 5)
   mHistory?: number;
 }

@@ -1,0 +1,2382 @@
+\documentclass[12pt,letterpaper]{article}
+
+% --- Paquetes de Formato y Lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% --- TRADUCCIÓN DE COMANDOS Y ETIQUETAS AL ESPAÑOL ---
+\floatname{algorithm}{Algoritmo}
+\algrenewcommand\algorithmicrequire{\textbf{Entrada:}}
+\algrenewcommand\algorithmicensure{\textbf{Salida:}}
+\algrenewcommand\algorithmicwhile{\textbf{Mientras}}
+\algrenewcommand\algorithmicdo{\textbf{hacer}}
+\algrenewcommand\algorithmicend{\textbf{Fin}}
+\algrenewcommand\algorithmicfor{\textbf{Para}}
+\algrenewcommand\algorithmicif{\textbf{Si}}
+\algrenewcommand\algorithmicthen{\textbf{Entonces}}
+\algrenewcommand\algorithmicelse{\textbf{Sino}}
+\algrenewcommand\algorithmicreturn{\textbf{Retornar}}
+\algrenewcommand\algorithmicloop{\textbf{Repetir}}
+\algrenewcomment[1]{\hfill\textit{// #1}} % Comentarios estilo // en cursiva
+
+
+\setlength{\parskip}{0.8em} % Ajusta la distancia entre párrafos
+\setlength{\parindent}{2em}
+
+% --- Paquetes Matemáticos ---
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+% --- Configuración de Enlaces e Hipervínculos ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=MidnightBlue
+}
+
+\begin{document}
+
+% =========================================================================
+% PORTADA INSTITUCIONAL PERSONALIZADA (1 SOLA HOJA)
+% =========================================================================
+\begin{titlepage}
+    \thispagestyle{empty}
+    \centering
+    
+    % --- ENCABEZADO INSTITUCIONAL ---
+    % Nota: Si tienes las imágenes de los logos en Overleaf, puedes descomentar las líneas \includegraphics
+    \begin{minipage}{0.15\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{logo_ucla.png} % Descomentar si subes el logo de la UCLA
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.68\textwidth}
+        \centering
+        {\small Ministerio del Poder Popular para la Educación Universitaria}\\[0.2em]
+        {\small Universidad Centroccidental Lisandro Alvarado}\\[0.2em]
+        {\small Decanato de Ciencias y Tecnología}\\[0.2em]
+        {\small Programa de Ingeniería en Informática}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.15\textwidth}
+        \centering
+         \includegraphics[width=\linewidth]{logo_dcyt.png} % Descomentar si subes el logo del DCYT
+    \end{minipage}
+
+    \vfill % Espaciado vertical flexible
+    
+    % --- TÍTULO PRINCIPAL ---
+    {\Large\bfseries INFORME:}\\[1em]
+    {\Huge\bfseries Proyecto métodos de}\\[0.5em]
+    {\Huge\bfseries optimización}
+
+    \vfill % Espaciado vertical flexible
+
+  % --- AUTORES ALINEADOS A LA DERECHA (TEXTO Y BLOQUE) ---
+\begin{flushright}
+\small
+\begin{tabular}{r}
+\textbf{Autores:} \\[0.4em]
+Gabriel López \\[0.2em]
+Yaslin Vreugdenhil \\[0.2em]
+Dehucarlys Azuaje \\[0.2em]
+Jennifer Ramírez \\[0.2em]
+Daniel Mosquera \\[0.2em]
+Javier Bravo \\[0.2em]
+José Acosta \\[0.2em]
+Alirio Freytez \\[0.2em]
+Ricardo Dugarte
+\end{tabular}
+\end{flushright}
+
+\vfill % Espaciado vertical flexible
+    % --- LUGAR Y FECHA (AL PIE DE PÁGINA) ---
+    {\small Barquisimeto, Julio 2026.}
+    
+\end{titlepage}
+
+% =========================================================================
+% CONTINUACIÓN DEL DOCUMENTO (ÍNDICE)
+% =========================================================================
+\newpage
+\tableofcontents
+\newpage
+
+% =========================================================================
+% DESARROLLO DEL INFORME
+% =========================================================================
+
+\section{Introducción a la Optimización Matemática}
+\label{sec:intro}
+En el ámbito de las ciencias de la computación y la ingeniería moderna, la 
+toma de decisiones óptima constituye el eje central del desarrollo 
+tecnológico. Frente a escenarios caracterizados por la falta de recursos 
+(tiempo de ejecución, capacidad de procesamiento y restricciones 
+presupuestarias), la búsqueda de ``la mejor forma de realizar algo'' dejó de 
+ser un atributo deseable para convertirse en una necesidad y requisito 
+crítico. En este paradigma, la matemática aplicada actúa como el motor formal 
+que transforma problemas complejos de la realidad en modelos abstractos 
+cuantificables.
+
+De esta necesidad surge la \textbf{Optimización Matemática}, disciplina 
+dedicada a la formulación y resolución de modelos analíticos y numéricos 
+diseñados para maximizar o minimizar una función objetivo dentro de una región 
+factible. Como señalan Salvendy (1992) y Bazaraa et al. (2013), la 
+optimización abarca desde la caracterización analítica de un problema hasta la
+implementación computacional de algoritmos capaces de navegar espacios de 
+búsqueda continuos, discretos, convexos o no diferenciables sin la necesidad 
+de enumerar exhaustivamente todas las alternativas.
+
+En el ámbito de la Ingeniería en Informática los métodos de optimización 
+trascienden de la teoría matemática para convertirse en un eje algorítmico de 
+diferentes disciplinas como la inteligencia artificial, la investigación de 
+operaciones, la arquitectura de redes y la simulación de sistemas complejos.
+
+El presente informe documenta un estudio teórico, algorítmico y práctico de 
+los principales \textbf{Métodos de Optimización}. A lo largo del documento se 
+abordan las bases conceptuales de la programación no lineal restringida y no 
+restringida, acompañadas de sus respectivos criterios de convergencia y 
+pruebas numéricas.
+
+Estos conceptos, aunque su formulación matemática parezca sencilla, son 
+aquellas bases que han permitido al mundo moderno avanzar a pasos agigantados.
+Su aplicación no se limita solo a los recursos computacionales, sino que 
+transforma cualquier restricción compleja en soluciones eficientes, lo cual 
+acelera el progreso en las diversas áreas que conforman el mundo actual.
+
+\newpage
+
+
+
+\subsection{¿Qué es un Problema de Optimización?}
+\label{sec:que_es_optimizacion}
+En áreas como la informática, la investigación operativa, los procesos
+administrativos y la manufactura, la optimización ocupa un rol
+fundamental. Su propósito principal es ajustar sistemáticamente los
+recursos, variables y procesos para maximizar la eficiencia global,
+minimizar los costos operativos o alcanzar el mejor rendimiento posible
+bajo un conjunto de condiciones dadas.
+
+
+A partir de esta premisa, la optimización se define formalmente como un
+proceso mediante el cual se logra un valor máximo o un mínimo con
+respecto a un determinado criterio (Salvendy, 1992, p.~134). El fin de este proceso es reconfigurar un sistema para incrementar su
+rendimiento utilizando la menor cantidad de recursos disponibles.
+
+
+Desde la perspectiva de la programación matemática, la optimización
+abarca un conjunto de métodos analíticos y numéricos enfocados en
+identificar al mejor candidato dentro de una colección de alternativas,
+evitando la necesidad de enumerar y evaluar explícitamente todas las
+opciones posibles. Por su naturaleza, un problema de optimización
+constituye fundamentalmente un problema de decisión.
+
+
+Para hallar esta solución óptima, se requiere formular matemáticamente
+una función objetivo, denotada como \(f(x)\), la cual se desea maximizar
+o minimizar. Dicha función está asociada a un vector de variables de
+decisión \(x\) y se encuentra sujeta a restricciones del tipo
+\(g_i(x) \le 0\) y \(h_i(x) = 0\), las cuales delimitan estrictamente el
+espacio o región de búsqueda donde residen las soluciones factibles.
+
+Los problemas de optimización se clasifican en:
+
+\begin{itemize}
+\tightlist
+\item
+  Lineales y no Lineales.
+\item
+  Convexos y no convexos.
+\item
+  Continuos o discretos.
+\item
+  Con restricciones o sin restricciones.
+\end{itemize}
+
+\section{Clasificación Rigurosa del Espacio de
+Problemas}\label{clasificaciuxf3n-rigurosa-del-espacio-de-problemas}
+
+La resolución eficiente de un problema de optimización no lineal depende
+críticamente de las propiedades intrínsecas de la función objetivo
+\(f: \mathbb{R}^n \rightarrow \mathbb{R}\) y de las funciones que
+delimitan la región factible. El análisis de estas propiedades permite
+determinar la viabilidad de los algoritmos numéricos, sus tasas de
+convergencia y la garantía de globalidad de las soluciones halladas.
+
+\begin{itemize}
+\item
+  \textbf{Optimización Lineal:} Se enfoca en problemas cuyas relaciones,
+  tanto en la función objetivo como en las restricciones, son
+  estrictamente lineales. Utiliza métodos de programación lineal y es
+  ampliamente aplicada en logística, transporte y distribución de
+  recursos. Es uno de los enfoques más utilizados debido a su
+  simplicidad y eficiencia computacional; un ejemplo clásico es el
+  problema de la dieta, donde se busca minimizar el costo de los
+  alimentos que satisfagan de manera exacta un conjunto determinado de
+  requerimientos nutricionales.
+\item
+  \textbf{Optimización No Lineal:} Aborda escenarios más complejos donde
+  las funciones objetivas o las restricciones contienen relaciones no
+  lineales que no guardan proporciones directas. Requiere algoritmos
+  avanzados, como los métodos de Newton o enfoques numéricos
+  especializados, y resulta indispensable para resolver problemas del
+  mundo real donde el comportamiento de las variables es curvo o
+  exponencial, tal como ocurre en la optimización de procesos químicos.
+\item
+  \textbf{Optimización Continua:} se refiere a problemas en los que las
+  variables pueden tomar cualquier valor dentro de un rango continuo.
+  Esto significa que las variables no están limitadas a valores enteros,
+  sino que pueden ser números reales.
+\item
+  \textbf{Optimización Discreta:} se aplica cuando las variables solo
+  pueden tomar valores discretos o enteros.
+\end{itemize}
+
+\subsection{Funciones Diferenciables y No Diferenciables}
+
+Para que los algoritmos basados en derivadas (métodos de gradiente y de
+segundo orden) operen de manera predecible, las funciones involucradas
+deben pertenecer a clases específicas de continuidad:
+
+\begin{itemize}
+\item
+  \textbf{Clase \(C^0\) (Funciones Continuas):} La función \(f\) es
+  continua en todo su dominio, lo que garantiza que no existen saltos
+  abruptos o asíntotas, pero no asegura la existencia de derivadas en
+  todos sus puntos.
+\item
+  \textbf{Clase \(C^1\) (Continuamente Diferenciables):} La función
+  posee derivadas parciales de primer orden continuas en todo su
+  dominio. Esto permite la construcción formal del \textbf{vector
+  gradiente}, denotado como \(\nabla f(x)\), el cual apunta en la
+  dirección de máximo crecimiento local: \begin{equation}
+          \nabla f(x) = \left[ \frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \dots, \frac{\partial f}{\partial x_n} \right]^T
+  \end{equation} Los métodos de primer orden, como el Descenso del
+  Gradiente, requieren estrictamente que \(f \in C^1\) para garantizar
+  que el cálculo del paso de búsqueda sea estable.
+\item
+  \textbf{Clase \(C^2\) (Dos veces Continuamente Diferenciables):} La
+  función posee derivadas parciales de segundo orden continuas. Esto
+  permite definir la \textbf{Matriz Hessiana}, denotada como
+  \(\nabla^2 f(x)\) o \(H(x)\), que describe la curvatura local de la
+  función: \begin{equation}
+          \nabla^2 f(x) = \begin{bmatrix}
+              \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\
+              \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \dots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\
+              \vdots & \vdots & \ddots & \vdots \\
+              \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_n^2}
+          \end{bmatrix}
+  \end{equation} De acuerdo con el Teorema de Schwarz, si \(f \in C^2\),
+  la matriz Hessiana es simétrica
+  (\(\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i}\)).
+  Los algoritmos de segundo orden, como Newton-Raphson, exigen
+  \(f \in C^2\) para calcular e invertir esta matriz, permitiendo una
+  convergencia cuadrática en la vecindad del óptimo.
+\end{itemize}
+
+\subsection{Concepto de Convexidad}\label{concepto-de-convexidad}
+
+La convexidad es la propiedad matemática más noble en optimización, ya
+que elimina la ambigüedad entre óptimos locales y globales.
+
+\begin{itemize}
+\item
+  \textbf{Conjunto Convexo:} Un conjunto \(S \subseteq \mathbb{R}^n\) es
+  convexo si, para cualquier par de puntos \(x, y \in S\), el segmento
+  de recta que los une pertenece enteramente a \(S\). Es decir:
+  \begin{equation}
+          \alpha x + (1-\alpha)y \in S, \quad \forall \alpha \in [0, 1]
+  \end{equation}
+\item
+  \textbf{Función Convexa:} Una función \(f: S \rightarrow \mathbb{R}\)
+  definida sobre un conjunto convexo \(S\) es convexa si cumple
+  analíticamente la desigualdad: \begin{equation}
+          f(\alpha x + (1-\alpha)y) \le \alpha f(x) + (1-\alpha)f(y), \quad \forall x,y \in S, \; \forall \alpha \in [0,1]
+  \end{equation}
+\end{itemize}
+
+{Criterios Diferenciales de
+Convexidad}\label{criterios-diferenciales-de-convexidad}
+
+Si la función es diferenciable, existen dos criterios fundamentales
+basados en el cálculo para verificar la convexidad:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Criterio de Primer Orden (\(C^1\)):} \(f\) es convexa si y
+  solo si: \begin{equation}
+          f(y) \ge f(x) + \nabla f(x)^T (y - x), \quad \forall x, y \in S
+  \end{equation} Geométricamente, esto significa que la aproximación por
+  hiperplano tangente siempre se encuentra por debajo (o es igual) a la
+  función.
+\item
+  \textbf{Criterio de Segundo Orden (\(C^2\)):} \(f\) es convexa si y
+  solo si su matriz Hessiana \(\nabla^2 f(x)\) es \textbf{semidefinida
+  positiva} (\(\nabla^2 f(x) \succeq 0\)) para todo \(x \in S\). Esto se
+  traduce en que sus valores propios (\(\lambda_i\)) son todos no
+  negativos (\(\lambda_i \ge 0\)), o que para cualquier vector no nulo
+  \(v \in \mathbb{R}^n\) se cumple: \begin{equation}
+          v^T \nabla^2 f(x) v \ge 0
+  \end{equation}
+\end{enumerate}
+
+El impacto teórico cardinal de la convexidad radica en el siguiente
+teorema fundamental: \emph{"Si \(f\) es una función convexa sobre un
+conjunto convexo restringido o libre, cualquier mínimo local es de
+manera inequívoca un mínimo global"}.
+
+
+\newpage
+% -------------------------------------------------------------------------
+\section{Optimización para Funciones Diferenciables Sin Restricciones}
+\label{sec:diferenciables_sin_restricciones}
+
+Se abordan las estrategias algorítmicas integradas para la resolución
+computacional de modelos, estructuradas bajo un enfoque analítico y
+numérico. En este trabajo se presentan los métodos organizados en tres
+categorías principales: métodos clásicos, métodos estocásticos y
+técnicas de búsqueda lineal. Cada procedimiento ha sido seleccionado
+debido a su fundamento matemático y su capacidad para converger hacia
+los puntos óptimos de una función objetivo bajo distintas condiciones
+operativas, permitiendo evaluar su desempeño práctico y sus propiedades
+de convergencia.
+
+\subsection{Métodos clásicos}\label{muxe9todos-cluxe1sicos}
+
+Los métodos clásicos, frecuentemente denominados enfoques deterministas
+o analíticos, se fundamentan en el uso riguroso del cálculo diferencial
+y el análisis matemático para explorar el espacio de soluciones. A
+partir de una estimación inicial, estos algoritmos trazan una
+trayectoria analítica y predecible hacia el extremo local o global de la
+función. Al carecer de componentes estocásticos o aleatorios, garantizan
+una ejecución totalmente reproducible que arroja idénticos resultados
+bajo las mismas premisas de partida.
+
+\textbf{Características principales:}
+
+\begin{itemize}
+\item
+  Se apoyan en el cálculo de derivadas o gradientes para determinar la
+  dirección de cambio óptima en la función objetivo.
+\item
+  Ofrecen una convergencia altamente precisa y eficiente en problemas
+  analíticamente bien estructurados y continuos.
+\end{itemize}
+
+\subsection{Algoritmo General de Optimización }
+
+Pese a que existen ciertas diferencias matemáticas con respecto a la
+curvatura o la pendiente, en general los algorítmos de optimización
+responden a una misma estructura algorítmica iterativa.Para resolver un
+problema de la forma: \(\min_{x \in \mathbb{R}^n} f(x)\) , los
+algoritmos generan una secuencia \(\{x_0, x_1, x_2, \dots, x_k\}\)
+siguiendo un esquema general:
+
+\subsubsection{Dar Punto Inicial \texorpdfstring{$x_0$}{x0} :} Se establece una estimación o
+vector \(x_0 \in \mathbb{R}^n\) de inicio en el espacio de búsqueda.El
+punto inicial es un factor determinante en el comportamiento, la
+velocidad de convergencia y el éxito de los algoritmos de búsqueda
+iterativa.
+
+
+\subsubsection{Determinación de la Dirección de Descenso}
+
+Escoger Dirección de Descenso : Un vector se llama dirección de
+descenso de una función \(f\) en un punto \(x\), si existe un \(s > 0\)
+tal que \[f(x + \lambda d) < f(x) \quad \forall \lambda \in (0, \mu)\]
+Si la función \(f\) es diferenciable, \(d\) es una dirección de descenso
+si y solo si el producto escalar con el gradiente es strictly
+negativo: \[\nabla f(x) \cdot d < 0\] Recordando la propiedad geométrica
+del producto escalar entre dos vectores:
+
+\[\vec{a} \cdot \vec{b} = \|a\| \cdot \|b\| \cdot \cos \measuredangle(a,b)\]
+
+Esto demuestra que para que la dirección sea de descenso, el ángulo
+entre el gradiente \(\nabla f(x)\) y el vector \(d\) debe ser obtuso
+(mayor a 90°), haciendo que el coseno sea negativo.
+
+La diferencia cardinal entre los algoritmos clásicos radica
+exclusivamente en la forma analítica en que calculan la dirección de
+descenso \(d_k\):
+
+\begin{itemize}
+
+% =========================================================================
+% 1. MÁXIMA PENDIENTE
+% =========================================================================
+\item {\large\textbf{Máxima Pendiente}}\\[0.5em]
+  Este método (también llamado Descenso del Gradiente), es el algoritmo de optimización de primer orden más fundamental y conceptualmente intuitivo para la resolución de problemas no restringidos de la forma \(\min\limits_{x \in \mathbb{R}^n} f(x)\). El método se apoya en una propiedad geométrica del vector gradiente \(\nabla f(x)\): para cualquier función continuamente diferenciable \((f \in C^1)\) el gradiente apunta exactamente en la dirección de máximo crecimiento local de la función. Por lo tanto, la dirección de máximo descenso es la dirección opuesta al gradiente:
+  \[d_k = -\nabla f(x_k)\]
+  Es computacionalmente liviano por iteración, pero su tasa de convergencia es lineal y suele ralentizarse cerca del óptimo en funciones mal acondicionadas.
+
+\vspace{1em} % Separación entre métodos
+
+% =========================================================================
+% 2. MÉTODO DE NEWTON
+% =========================================================================
+\item {\large\textbf{Método de Newton}}\\[0.5em]
+  El Método de Newton es el algoritmo determinista de segundo orden más emblemático en la optimización no lineal no restringida de la forma \(\min\limits_{x \in \mathbb{R}^n} f(x)\).
+
+  Este método usa una sucesión de aproximaciones cuadráticas de la función objetivo y el máximo de la aproximación debería converger al máximo de la función.
+
+  Newton-Raphson es un algoritmo iterativo para resolver ecuaciones no lineales, se fundamenta mediante la expansión en Serie de Taylor de segundo orden de la función objetivo \(f(x)\) alrededor de un punto conocido \(x_k\):
+
+  \[f(x) \approx f(x_k) + \nabla f(x_k)^T (x - x_k) + \frac{1}{2} (x - x_k)^T H(x_k) (x - x_k)\]
+
+  donde:
+  \begin{itemize}
+    \item \(\nabla f(x_k)\) es el vector gradiente evaluado en \(x_k\).
+    \item \(H(x_k) = \nabla^2 f(x_k)\) es la matriz Hessiana (matriz de segundas derivadas parciales de \(n \times n\)) evaluada en \(x_k\).
+  \end{itemize}
+
+  Para encontrar la condición necesaria de un punto estacionario de esta aproximación cuadrática, se calcula el gradiente con respecto a \(x\) e iguala a cero:
+
+  \[\nabla f(x) \approx \nabla f(x_k) + H(x_k)(x - x_k) = 0\]
+
+  Despejando el vector \(x\), se obtiene la regla de actualización de Newton-Raphson:
+
+  \[x_{k+1} = x_k - H^{-1}(x_k)\nabla f(x_k)\]
+
+  La idea del método es iniciar desde un punto inicial \(x_0\) y luego utilizar la ecuación anterior para determinar un nuevo punto. El proceso puede o no converger dependiendo de la selección del punto de inicio. El algoritmo termina cuando \(x_{k+1}\) es suficientemente cercano a \(x_k\).
+
+  \textbf{Ventajas principales:}
+  \begin{itemize}
+    \item \textbf{Convergencia rápida:} Llega a la solución exacta muy rápido si el punto inicial está cerca del óptimo.
+    \item \textbf{Menor cantidad de operaciones:} Requiere muchos menos pasos que los métodos basados solo en la primera derivada.
+  \end{itemize}
+
+  \textbf{Limitaciones:}
+  \begin{itemize}
+    \item \textbf{Costo computacional alto:} Se requiere computar tanto el gradiente como la matriz Hessiana.
+    \item \textbf{Sensibilidad al punto inicial:} Si se empieza lejos del óptimo, el método puede oscilar, divergir o capturarse en un punto de silla o máximo en lugar de un mínimo.
+  \end{itemize}
+
+  La forma de calcular la dirección de descenso para Newton es:
+  \[d = -\left[\nabla^2 f(x^k)\right]^{-1} \cdot \nabla f(x^k)\]
+
+\textbf{Pseudocódigo del Método de Newton}
+
+\begin{algorithm}[H]
+\caption{Método de Newton Multivariable}
+\label{alg:newton_multivariable}
+\begin{algorithmic}[1]
+\Require 
+    \State $f(x)$: Función objetivo a minimizar
+    \State $x_0$: Vector inicial de variables $[x_1, x_2, \dots, x_n]^T$
+    \State $\varepsilon_1$: Tolerancia para el gradiente ($\|\nabla f\|$)
+    \State $\varepsilon_2$: Tolerancia para el cambio en variables ($\|x_{k+1} - x_k\|$)
+    \State $\text{max\_iter}$: Número máximo de iteraciones
+
+\Ensure 
+    \State $x_{\text{opt}}$: Vector aproximado del punto óptimo $x^*$
+    \State $k$: Número total de iteraciones
+
+\vspace{0.25cm}
+
+\Statex \textbf{Inicio}
+\State $k \gets 0$
+\State $x_{\text{actual}} \gets x_0$
+\State $\text{convergido} \gets \text{FALSO}$
+
+\While{$(k < \text{max\_iter}) \land (\text{convergido} == \text{FALSO})$}
+    \State $g_k \gets \nabla f(x_{\text{actual}})$ \Comment{1. Evaluar el vector Gradiente}
+    \State $H_k \gets \nabla^2 f(x_{\text{actual}})$ \Comment{2. Evaluar la Matriz Hessiana}
+    \State $H_{\text{inv}} \gets H_k^{-1}$ \Comment{3. Calcular la inversa de la Matriz Hessiana}
+    
+    \If{$\|g_k\| \le \varepsilon_1$} \Comment{4. Criterio de Parada por Gradiente}
+        \State $\text{convergido} \gets \text{VERDADERO}$
+        \State \textbf{romper ciclo}
+    \EndIf
+    
+    \State $d_k \gets -H_{\text{inv}} \cdot g_k$ \Comment{5. Actualizar el vector de variables}
+    \State $x_{\text{nuevo}} \gets x_{\text{actual}} + d_k$
+    
+    \If{$\|x_{\text{nuevo}} - x_{\text{actual}}\| \le \varepsilon_2$} \Comment{6. Criterio de Parada por Cambio}
+        \State $\text{convergido} \gets \text{VERDADERO}$
+        \State $x_{\text{actual}} \gets x_{\text{nuevo}}$
+        \State \textbf{romper ciclo}
+    \EndIf
+    
+    \State $x_{\text{actual}} \gets x_{\text{nuevo}}$ \Comment{7. Siguiente iteración}
+    \State $k \gets k + 1$
+\EndWhile
+
+\State $x_{\text{opt}} \gets x_{\text{actual}}$
+\State \Return $x_{\text{opt}}, k$
+\end{algorithmic}
+\end{algorithm}
+
+  \textbf{Ejercicio de aplicacion: Metodo de Newton}
+
+
+Consideremos el problema de minimizar la función no lineal de dos variables:
+
+$$\min_{\mathbf{x} \in \mathbb{R}^2} f(x_1, x_2) = x_1^4 + x_2^4 - 4x_1 - 4x_2$$
+
+\textbf{Resolución}
+
+Partiendo del punto inicial $\mathbf{x}_0 = \begin{pmatrix} 2 \\ 2\end{pmatrix}$.
+
+Paso 1: Vector Gradiente y Matriz Hessiana:
+
+\begin{itemize}
+\item
+Vector Gradiente $\nabla f(\mathbf{x})$ ($2 \times 1$):
+
+$$\nabla f(\mathbf{x}) = \begin{pmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \end{pmatrix} = \begin{pmatrix} 4x_1^3 - 4 \\ 4x_2^3 - 4 \end{pmatrix}$$
+
+\item
+Matriz Hessiana $H(\mathbf{x})$ ($2 \times 2$):
+
+$$H(\mathbf{x}) = \begin{pmatrix} \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} \\ \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} \end{pmatrix} = \begin{pmatrix} 12x_1^2 & 0 \\ 0 & 12x_2^2 \end{pmatrix}$$
+\end{itemize}
+
+Iteración 1 ($k = 0$)
+
+\begin{itemize}
+\item
+Punto de inicio: $\mathbf{x}_0 = \begin{pmatrix} 2 \\ 2 \end{pmatrix}$
+
+\item
+Evaluación del Gradiente:
+
+$$\nabla f(\mathbf{x}_0) = \begin{pmatrix} 4(2)^3 - 4 \\ 4(2)^3 - 4 \end{pmatrix} = \begin{pmatrix} 28 \\ 28 \end{pmatrix}$$
+
+\item
+Evaluación de la Hessiana y su Inversa:
+
+$$H(\mathbf{x}_0) = \begin{pmatrix} 12(2)^2 & 0 \\ 0 & 12(2)^2 \end{pmatrix} = \begin{pmatrix} 48 & 0 \\ 0 & 48 \end{pmatrix} \implies H^{-1}(\mathbf{x}_0) = \begin{pmatrix} \frac{1}{48} & 0 \\ 0 & \frac{1}{48} \end{pmatrix}$$
+
+\item
+Cálculo de la regla de actualización:
+
+$$H^{-1}(\mathbf{x}_0)\nabla f(\mathbf{x}_0) = \begin{pmatrix} \frac{1}{48} & 0 \\ 0 & \frac{1}{48} \end{pmatrix} \begin{pmatrix} 28 \\ 28 \end{pmatrix} = \begin{pmatrix} \frac{28}{48} \\ \frac{28}{48} \end{pmatrix} \approx \begin{pmatrix} 0.5833 \\ 0.5833 \end{pmatrix}$$
+
+$$\mathbf{x}_1 = \begin{pmatrix} 2 \\ 2 \end{pmatrix} - \begin{pmatrix} 0.5833 \\ 0.5833 \end{pmatrix} = \begin{pmatrix} 1.4167 \\ 1.4167 \end{pmatrix}$$
+\end{itemize}
+
+Iteración 2 ($k = 1$)
+
+\begin{itemize}
+\item
+Punto actual: $\mathbf{x}_1 = \begin{pmatrix} 1.4167 \\ 1.4167 \end{pmatrix}$
+
+\item
+Evaluación del Gradiente:
+
+$$\nabla f(\mathbf{x}_1) = \begin{pmatrix} 4(1.4167)^3 - 4 \\ 4(1.4167)^3 - 4 \end{pmatrix} \approx \begin{pmatrix} 7.3752 \\ 7.3752 \end{pmatrix}$$
+
+\item
+Evaluación de la Hessiana y su Inversa:
+
+$$\begin{aligned} H(\mathbf{x}_1) &= \begin{pmatrix} 12(1.4167)^2 & 0 \\ 0 & 12(1.4167)^2 \end{pmatrix} \approx \begin{pmatrix} 24.084 & 0 \\ 0 & 24.084 \end{pmatrix} \\ &\implies H^{-1}(\mathbf{x}_1) \approx \begin{pmatrix} 0.0415 & 0 \\ 0 & 0.0415 \end{pmatrix} \end{aligned}$$
+
+\item
+Cálculo de la regla de actualización:
+
+$$H^{-1}(\mathbf{x}_1)\nabla f(\mathbf{x}_1) = \begin{pmatrix} 0.0415 \times 7.3752 \\ 0.0415 \times 7.3752 \end{pmatrix} = \begin{pmatrix} 0.3062 \\ 0.3062 \end{pmatrix}$$
+
+$$\mathbf{x}_2 = \begin{pmatrix} 1.4167 \\ 1.4167 \end{pmatrix} - \begin{pmatrix} 0.3062 \\ 0.3062 \end{pmatrix} = \begin{pmatrix} 1.1105 \\ 1.1105 \end{pmatrix}$$
+\end{itemize}
+
+Iteración 3 ($k = 2$)
+
+\begin{itemize}
+\item
+Punto actual: $\mathbf{x}_2 = \begin{pmatrix} 1.1105 \\ 1.1105 \end{pmatrix}$
+
+\item
+Evaluación del Gradiente:
+
+$$\nabla f(\mathbf{x}_2) = \begin{pmatrix} 4(1.1105)^3 - 4 \\ 4(1.1105)^3 - 4 \end{pmatrix} \approx \begin{pmatrix} 1.4770 \\ 1.4770 \end{pmatrix}$$
+
+\item
+Evaluación de la Hessiana y su Inversa:
+
+$$\begin{aligned} H(\mathbf{x}_2) &= \begin{pmatrix} 12(1.1105)^2 & 0 \\ 0 & 12(1.1105)^2 \end{pmatrix} \approx \begin{pmatrix} 14.7985 & 0 \\ 0 & 14.7985 \end{pmatrix} \\ &\implies H^{-1}(\mathbf{x}_2) \approx \begin{pmatrix} 0.0676 & 0 \\ 0 & 0.0676 \end{pmatrix} \end{aligned}$$
+
+\item
+Cálculo de la regla de actualización:
+
+$$H^{-1}(\mathbf{x}_2)\nabla f(\mathbf{x}_2) = \begin{pmatrix} 0.0676 \times 1.4770 \\ 0.0676 \times 1.4770 \end{pmatrix} = \begin{pmatrix} 0.0998 \\ 0.0998 \end{pmatrix}$$
+
+$$\mathbf{x}_3 = \begin{pmatrix} 1.1105 \\ 1.1105 \end{pmatrix} - \begin{pmatrix} 0.0998 \\ 0.0998 \end{pmatrix} = \begin{pmatrix} 1.0107 \\ 1.0107 \end{pmatrix}$$
+\end{itemize}
+
+Análisis del Resultado:
+
+Se observa cómo la norma del gradiente disminuye rápidamente desde $\Vert{}\nabla f(\mathbf{x}_0)\Vert{} \approx 39.59$ hasta $\Vert{}\nabla f(\mathbf{x}_2)\Vert{} \approx 2.08$. En solo 3 iteraciones, el vector de variables converge casi de forma exacta hacia el punto óptimo teórico $\mathbf{x}^* = \begin{pmatrix} 1 \\ 1 \end{pmatrix}$.
+
+
+
+\vspace{1em} % Separación entre métodos
+
+% =========================================================================
+% 3. MÉTODOS QUASI-NEWTON 
+% =========================================================================
+\item {\large\textbf{Métodos Quasi-Newton}}\\[0.5em]
+  Es una familia de algoritmos de optimización utilizados principalmente para 
+resolver problemas no lineales sin restricciones. Destacan en campos como la 
+estadística y la ciencia de datos por su eficiencia al aproximar la matriz 
+Hessiana, la cual es fundamental para determinar la curvatura de la función 
+objetivo. Este enfoque construye su aproximación utilizando únicamente las 
+primeras derivadas, reduciendo drásticamente la carga computacional.
+
+El algoritmo opera mediante la actualización iterativa de una estimación inicial 
+hacia la solución óptima. En cada paso, emplea la información del gradiente para 
+ajustar tanto la posición actual como la aproximación de la matriz Hessiana.
+
+El proceso sigue esta secuencia:
+
+\begin{itemize}
+\item Se establece una estimación inicial \(x^{(0)}\) y se inicializa la matriz 
+de aproximación como la identidad:
+\[
+B_0 = I
+\]
+\item En cada iteración \(k\), se calcula el gradiente \(\nabla f(x^{(k)})\) y 
+se determina la dirección de búsqueda \(d^{(k)}\) resolviendo el sistema:
+\[
+B_k \, d^{(k)} = -\nabla f(x^{(k)})
+\]
+donde \(B_k\) es la aproximación actual de la Hessiana.
+\item Se actualiza la solución aplicando un tamaño de paso \(\alpha_k\) 
+(generalmente \(\alpha_k = 1\) en las primeras iteraciones, o mediante una 
+búsqueda lineal que satisfaga las condiciones de Wolfe):
+\[
+x^{(k+1)} = x^{(k)} + \alpha_k d^{(k)}
+\]
+\item Se actualiza la matriz \(B_k\) a \(B_{k+1}\) utilizando la información 
+del gradiente y del cambio en las variables, con un costo computacional de 
+\(O(n^2)\) operaciones aritméticas por iteración.
+\end{itemize}
+
+La actualización de la matriz \(B_k\) se realiza mediante la siguiente 
+expresión, que utiliza la información de los cambios en las variables y en el 
+gradiente:
+
+Definiendo:
+\[
+S^k = x^{(k+1)} - x^{(k)}, \qquad y^k = \nabla f(x^{(k+1)}) - \nabla f(x^{(k)})
+\]
+la nueva aproximación se calcula como:
+\[
+B_{k+1} = B_k + \frac{(y^k - B_k S^k)(y^k - B_k S^k)^T}{(y^k - B_k S^k)^T S^k}
+\]
+siempre que el denominador \((y^k - B_k S^k)^T S^k \neq 0\).
+
+Esta actualización garantiza que la nueva matriz \(B_{k+1}\) satisface la 
+ecuación:
+\[
+B_{k+1} S^k = y^k
+\]
+lo que la convierte en una aproximación consistente con la curvatura de la 
+función en la dirección del último paso. Es importante notar que esta fórmula no 
+asegura necesariamente que \(B_{k+1}\) sea definida positiva, por lo que en la 
+práctica se han desarrollado otras variantes que preservan esta propiedad.
+
+\paragraph{Algoritmo General}
+
+El esquema iterativo completo del método se resume en los siguientes pasos:
+
+\begin{enumerate}
+\item \textbf{Inicialización:} Seleccionar un punto inicial 
+\(x^{(0)} \in \mathbb{R}^n\) y una tolerancia \(\varepsilon > 0\). Inicializar 
+\(B_0 = I\) y establecer \(k = 0\).
+\item \textbf{Dirección de descenso:} Calcular el gradiente 
+\(\nabla f(x^{(k)})\) y resolver \(B_k d^{(k)} = -\nabla f(x^{(k)})\) para 
+obtener \(d^{(k)}\).
+\item \textbf{Tamaño de paso:} Determinar \(\alpha_k\) (por ejemplo, mediante 
+búsqueda lineal o fijando \(\alpha_k = 1\)).
+\item \textbf{Actualizar punto:} \(x^{(k+1)} = x^{(k)} + \alpha_k d^{(k)}\).
+\item \textbf{Criterio de parada:} Si \(\|\nabla f(x^{(k+1)})\| \leq \varepsilon\), 
+detener y retornar \(x^{(k+1)}\).
+\item \textbf{Actualizar matriz:} Calcular \(S^k = x^{(k+1)} - x^{(k)}\), 
+\(y^k = \nabla f(x^{(k+1)}) - \nabla f(x^{(k)})\), y actualizar:
+\[
+B_{k+1} = B_k + \frac{(y^k - B_k S^k)(y^k - B_k S^k)^T}{(y^k - B_k S^k)^T S^k}
+\]
+\item Incrementar \(k = k + 1\) y volver al paso 2.
+
+\end{enumerate}
+
+\textbf{Pseudocodigo metodo Quasi-Newton}
+
+\begin{algorithm}[H]
+\caption{Algoritmo Quasi-Newton (Actualización SR1)}
+\label{alg:quasi_newton_sr1}
+\begin{algorithmic}[1]
+\Require 
+    \State $x^{(0)} \in \mathbb{R}^n$: Punto inicial
+    \State $\varepsilon > 0$: Tolerancia de convergencia
+
+\Ensure 
+    \State $x^*$: Punto óptimo estimado
+
+\vspace{0.25cm}
+
+\textbf{Inicio}
+\State $B_0 \gets I$ \Comment{Matriz de aproximación inicial}
+\State $k \gets 0$
+
+\While{$\|\nabla f(x^{(k)})\| > \varepsilon$} \Comment{Criterio de parada por gradiente}
+    \State Resolver $B_k d^{(k)} = -\nabla f(x^{(k)})$ para obtener $d^{(k)}$
+    \State Determinar el tamaño de paso $\alpha_k$ \Comment{Búsqueda de línea o $\alpha_k = 1$}
+    \State $x^{(k+1)} \gets x^{(k)} + \alpha_k d^{(k)}$ \Comment{Actualización de la posición}
+    \State $s_k \gets x^{(k+1)} - x^{(k)}$
+    \State $y_k \gets \nabla f(x^{(k+1)}) - \nabla f(x^{(k)})$
+    \State $B_{k+1} \gets B_k + \dfrac{(y_k - B_k s_k)(y_k - B_k s_k)^T}{(y_k - B_k s_k)^T s_k}$ \Comment{Actualización SR1}
+    \State $k \gets k + 1$
+\EndWhile
+
+\State \Return $x^{(k)}$
+\end{algorithmic}
+\end{algorithm}
+
+Cada iteración requiere \(O(n^2)\) operaciones, lo que hace que este enfoque sea 
+mucho más eficiente que el método de Newton puro, que necesita \(O(n^3)\) 
+operaciones.
+
+\textbf{Ejercicio de aplicacion: Metodo Quasi-Newton}
+
+Minimizar la función:
+\[
+\min f(x_1, x_2) = x_1^2 + 2x_2^2
+\]
+partiendo del punto inicial \(x^{(0)} = (2, 1)^T\).
+
+\textbf{Resolución}
+
+La función objetivo es:
+\[
+f(x_1, x_2) = x_1^2 + 2x_2^2
+\]
+
+Su gradiente es:
+\[
+\nabla f(x) = \begin{pmatrix} 2x_1 \\ 4x_2 \end{pmatrix}
+\]
+
+Punto inicial:
+\[
+x^{(0)} = \begin{pmatrix} 2 \\ 1 \end{pmatrix}
+\]
+
+Matriz inicial:
+\[
+B_0 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}
+\]
+
+Se realizarán 3 iteraciones con tamaño de paso fijo \(\alpha_k = 1\).
+
+\subsection*{Iteración \(k = 0\)}
+
+\textbf{Paso 1:} Calcular el gradiente en \(x^{(0)}\):
+\[
+\nabla f(x^{(0)}) = \begin{pmatrix} 2(2) \\ 4(1) \end{pmatrix} = \begin{pmatrix} 4 \\ 4 \end{pmatrix}
+\]
+
+\textbf{Paso 2:} Resolver para la dirección de descenso \(d^{(0)}\):
+\[
+B_0 d^{(0)} = -\nabla f(x^{(0)}) \quad \Rightarrow \quad
+\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} d^{(0)} = \begin{pmatrix} -4 \\ -4 \end{pmatrix}
+\]
+\[
+d^{(0)} = \begin{pmatrix} -4 \\ -4 \end{pmatrix}
+\]
+
+\textbf{Paso 3:} Actualizar el punto:
+\[
+x^{(1)} = x^{(0)} + \alpha_0 d^{(0)} = \begin{pmatrix} 2 \\ 1 \end{pmatrix} + 1 \cdot \begin{pmatrix} -4 \\ -4 \end{pmatrix} = \begin{pmatrix} -2 \\ -3 \end{pmatrix}
+\]
+
+\textbf{Paso 4:} Calcular el gradiente en \(x^{(1)}\):
+\[
+\nabla f(x^{(1)}) = \begin{pmatrix} 2(-2) \\ 4(-3) \end{pmatrix} = \begin{pmatrix} -4 \\ -12 \end{pmatrix}
+\]
+
+\textbf{Paso 5:} Definir \(S^0\) e \(y^0\):
+\[
+S^0 = x^{(1)} - x^{(0)} = \begin{pmatrix} -2 \\ -3 \end{pmatrix} - \begin{pmatrix} 2 \\ 1 \end{pmatrix} = \begin{pmatrix} -4 \\ -4 \end{pmatrix}
+\]
+\[
+y^0 = \nabla f(x^{(1)}) - \nabla f(x^{(0)}) = \begin{pmatrix} -4 \\ -12 \end{pmatrix} - \begin{pmatrix} 4 \\ 4 \end{pmatrix} = \begin{pmatrix} -8 \\ -16 \end{pmatrix}
+\]
+
+\textbf{Paso 6:} Calcular \(v^0 = y^0 - B_0 S^0\):
+\[
+B_0 S^0 = \begin{pmatrix} -4 \\ -4 \end{pmatrix}, \quad 
+v^0 = \begin{pmatrix} -8 \\ -16 \end{pmatrix} - \begin{pmatrix} -4 \\ -4 \end{pmatrix} = \begin{pmatrix} -4 \\ -12 \end{pmatrix}
+\]
+
+\textbf{Paso 7:} Calcular el denominador \((v^0)^T S^0\):
+\[
+(v^0)^T S^0 = \begin{pmatrix} -4 & -12 \end{pmatrix} \begin{pmatrix} -4 \\ -4 \end{pmatrix} = 16 + 48 = 64 \neq 0
+\]
+
+\textbf{Paso 8:} Actualizar \(B_1\):
+\[
+B_1 = B_0 + \frac{v^0 (v^0)^T}{(v^0)^T S^0}
+\]
+\[
+v^0 (v^0)^T = \begin{pmatrix} -4 \\ -12 \end{pmatrix} \begin{pmatrix} -4 & -12 \end{pmatrix} = \begin{pmatrix} 16 & 48 \\ 48 & 144 \end{pmatrix}
+\]
+\[
+B_1 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + \frac{1}{64} \begin{pmatrix} 16 & 48 \\ 48 & 144 \end{pmatrix}
+= \begin{pmatrix} 1.25 & 0.75 \\ 0.75 & 3.25 \end{pmatrix}
+\]
+
+\textbf{Paso 9:} Verificar criterio de parada:
+\[
+\|\nabla f(x^{(1)})\| = \sqrt{(-4)^2 + (-12)^2} = \sqrt{160} \approx 12.65
+\]
+No se cumple la condición de parada, se continúa.
+
+\subsection*{Iteración \(k = 1\)}
+
+\textbf{Paso 1:} Gradiente en \(x^{(1)}\):
+\[
+\nabla f(x^{(1)}) = \begin{pmatrix} -4 \\ -12 \end{pmatrix}
+\]
+
+\textbf{Paso 2:} Resolver \(B_1 d^{(1)} = -\nabla f(x^{(1)})\):
+\[
+\begin{pmatrix} 1.25 & 0.75 \\ 0.75 & 3.25 \end{pmatrix} \begin{pmatrix} d_1 \\ d_2 \end{pmatrix} = \begin{pmatrix} 4 \\ 12 \end{pmatrix}
+\]
+Multiplicando por 4:
+\[
+5 d_1 + 3 d_2 = 16, \quad 3 d_1 + 13 d_2 = 48
+\]
+Resolviendo el sistema se obtiene:
+\[
+d_1 = \frac{8}{7}, \quad d_2 = \frac{24}{7}
+\]
+\[
+d^{(1)} = \begin{pmatrix} 8/7 \\ 24/7 \end{pmatrix}
+\]
+
+\textbf{Paso 3:} Actualizar el punto:
+\[
+x^{(2)} = x^{(1)} + \alpha_1 d^{(1)} = \begin{pmatrix} -2 \\ -3 \end{pmatrix} + \begin{pmatrix} 8/7 \\ 24/7 \end{pmatrix} = \begin{pmatrix} -6/7 \\ 3/7 \end{pmatrix}
+\]
+
+\textbf{Paso 4:} Calcular el gradiente en \(x^{(2)}\):
+\[
+\nabla f(x^{(2)}) = \begin{pmatrix} 2(-6/7) \\ 4(3/7) \end{pmatrix} = \begin{pmatrix} -12/7 \\ 12/7 \end{pmatrix}
+\]
+
+\textbf{Paso 5:} Definir \(S^1\) e \(y^1\):
+\[
+S^1 = x^{(2)} - x^{(1)} = \begin{pmatrix} 8/7 \\ 24/7 \end{pmatrix}
+\]
+\[
+y^1 = \nabla f(x^{(2)}) - \nabla f(x^{(1)}) = \begin{pmatrix} 16/7 \\ 96/7 \end{pmatrix}
+\]
+
+\textbf{Paso 6:} Calcular \(v^1 = y^1 - B_1 S^1\):
+\[
+B_1 S^1 = \begin{pmatrix} 4 \\ 12 \end{pmatrix}, \quad 
+v^1 = \begin{pmatrix} 16/7 \\ 96/7 \end{pmatrix} - \begin{pmatrix} 4 \\ 12 \end{pmatrix} = \begin{pmatrix} -12/7 \\ 12/7 \end{pmatrix}
+\]
+
+\textbf{Paso 7:} Calcular el denominador:
+\[
+(v^1)^T S^1 = \frac{192}{49} \neq 0
+\]
+
+\textbf{Paso 8:} Actualizar \(B_2\):
+\[
+B_2 = B_1 + \frac{v^1 (v^1)^T}{(v^1)^T S^1}
+= \begin{pmatrix} 2 & 0 \\ 0 & 4 \end{pmatrix}
+\]
+
+\textbf{Paso 9:} Verificar criterio de parada:
+\[
+\|\nabla f(x^{(2)})\| = \frac{12\sqrt{2}}{7} \approx 2.424
+\]
+No se cumple, se continúa.
+
+\subsection*{Iteración \(k = 2\)}
+
+\textbf{Paso 1:} Gradiente en \(x^{(2)}\):
+\[
+\nabla f(x^{(2)}) = \begin{pmatrix} -12/7 \\ 12/7 \end{pmatrix}
+\]
+
+\textbf{Paso 2:} Resolver \(B_2 d^{(2)} = -\nabla f(x^{(2)})\):
+\[
+\begin{pmatrix} 2 & 0 \\ 0 & 4 \end{pmatrix} \begin{pmatrix} d_1 \\ d_2 \end{pmatrix} = \begin{pmatrix} 12/7 \\ -12/7 \end{pmatrix}
+\]
+\[
+d_1 = \frac{6}{7}, \quad d_2 = -\frac{3}{7}, \quad d^{(2)} = \begin{pmatrix} 6/7 \\ -3/7 \end{pmatrix}
+\]
+
+\textbf{Paso 3:} Actualizar el punto:
+\[
+x^{(3)} = x^{(2)} + \alpha_2 d^{(2)} = \begin{pmatrix} -6/7 \\ 3/7 \end{pmatrix} + \begin{pmatrix} 6/7 \\ -3/7 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+\textbf{Paso 4:} Calcular el gradiente en \(x^{(3)}\):
+\[
+\nabla f(x^{(3)}) = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+\textbf{Paso 5:} Criterio de parada:
+\[
+\|\nabla f(x^{(3)})\| = 0 \leq 10^{-6}
+\]
+Se cumple la condición de parada. Por lo tanto, la solución aproximada es:
+\[
+x^* = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+\section*{Análisis del Resultado}
+
+En la siguiente tabla se resume la evolución de las variables y de la norma del gradiente a lo largo de las tres iteraciones:
+
+\[
+\begin{array}{c|c|c|c}
+\hline
+k & x^{(k)} & \|\nabla f(x^{(k)})\| & B_k \\
+\hline
+0 & (2.0000,\; 1.0000) & 5.6569 & I \\
+1 & (-2.0000,\; -3.0000) & 12.6491 & \begin{pmatrix}1.25 & 0.75 \\ 0.75 & 3.25\end{pmatrix} \\
+2 & (-0.8571,\; 0.4286) & 2.4244 & \begin{pmatrix}2.00 & 0.00 \\ 0.00 & 4.00\end{pmatrix} \\
+3 & (0.0000,\; 0.0000) & 0.0000 & — \\
+\hline
+\end{array}
+\]
+
+Se observa cómo la norma del gradiente, a pesar de aumentar en la primera iteración (de \(5.66\) a \(12.65\)) debido al paso unitario en una dirección no óptima, se corrige rápidamente en la segunda iteración al mejorar la aproximación de la Hessiana. En la iteración \(k=2\), la matriz \(B_2\) se iguala exactamente a la Hessiana verdadera:
+\[
+\nabla^2 f(x) = \begin{pmatrix} 2 & 0 \\ 0 & 4 \end{pmatrix}
+\]
+lo que permite calcular la dirección de Newton puro y dar el paso exacto hacia el mínimo:
+\[
+x^{(3)} = x^{(2)} - \big(\nabla^2 f(x^{(2)})\big)^{-1} \nabla f(x^{(2)}) = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+\]
+
+En solo 3 iteraciones, el algoritmo converge de manera exacta al punto óptimo teórico \(x^* = (0,0)^T\), con un valor de la función objetivo \(f(x^*) = 0\) y norma del gradiente nula. Este comportamiento es consistente con la teoría: para funciones cuadráticas, el método Quasi-Newton con actualización de rango uno (SR1) puede alcanzar la solución en un número finito de pasos (\(n\) pasos, donde \(n\) es la dimensión del problema), siempre que las direcciones \(S^k\) sean linealmente independientes.
+
+\end{itemize}
+
+
+\subsubsection{Estrategias para la Determinación del Tamaño de Paso}
+
+Para el proceso iterativo, con los métodos anteriores se puede obtener la dirección de descenso $d_k$, calculada mediante Newton, BFGS o Gradiente. Esto indica la ruta a seguir; no obstante, esta información se debe complementar con el Tamaño de Paso, el cual permite decidir la magnitud del avance a lo largo de esa ruta. Este se obtiene calculando un escalar $\alpha_k > 0$. La regla general de actualización de la posición en cada iteración $k$ se define como:
+$$x_{k+1} = x_k + \alpha_k d_k$$
+
+Es de vital importancia mencionar que existe un $\alpha_k$ que minimiza la función en la dirección deseada, a esto se le conoce como "búsqueda exacta". No obstante, encontrarlo requiere tanto tiempo y recursos de la computadora que resulta poco factible realizarlo. Por ello, los algoritmos modernos recurren a la búsqueda inexacta, donde el paso elegido es aceptado si cumple ciertas condiciones lógicas que garanticen un avance de manera significativa.
+
+\textbf{Criterio de Armijo (Búsqueda Inexacta)}
+
+El criterio de Armijo, o Condición de Armijo, busca encontrar un tamaño de paso $\alpha$ que decrementa el valor de la función, evitando que el paso sea lo suficientemente grande para evitar rebasar el mínimo local o divergir. Para ello, teniendo un punto inicial $x_k \in \mathbb{R}^n$, una constante de holgura $\mu \in (0,1)$ y una dirección de descenso $d_k$, se busca obtener un $\alpha$ que logre una reducción del valor de la función objetivo que sea proporcional al tamaño de paso y la pendiente inicial. Analíticamente, se debe cumplir la siguiente desigualdad:
+$$f(x_k + \alpha d_k) \leq f(x_k) + \alpha \mu \nabla f(x_k)^T d_k$$
+
+Donde:
+\begin{itemize}
+    \item $f(x_k + \alpha d_k)$ es el valor de la función si avanzamos con el tamaño de paso $\alpha$.
+    \item $f(x_k)$ es el valor actual de la función antes de dar el paso.
+    \item $\alpha \mu \nabla f(x_k)^T d_k$ representa la reducción mínima aceptable, calculada multiplicando el tamaño de paso propuesto, la constante de tolerancia y la pendiente direccional inicial.
+\end{itemize}
+
+Para poder aplicar el Criterio de Armijo, se requieren estos pasos, usualmente mediante el algoritmo de Backtracking:
+\begin{enumerate}
+    \item Se inicializa con un tamaño de paso grande (por convención, $\alpha = 1$).
+    \item Se evalúa si ese valor cumple con la desigualdad de Armijo.
+    \item Si la desigualdad no se cumple, se reduce el tamaño del paso multiplicándolo por un factor de contracción (por ejemplo, a la mitad).
+    \item Se repite la evaluación hasta encontrar un $\alpha$ que apruebe la condición.
+\end{enumerate}
+
+\textbf{Ventajas:} Asegura que el paso dado en la dirección de descenso no sea extremadamente grande para evitar sobrepasar el mínimo local o divergir.
+
+\textbf{Limitaciones:} Puede aprobar pasos ridículamente pequeños, generando una cantidad de iteraciones excesivamente alta y lentitud para llegar a la solución. No garantiza llegar a un óptimo global.
+
+\textbf{Ejercicio de Aplicación: Criterio de Armijo}
+
+Dada la función objetivo $f(x_1, x_2) = 2x_1^2 + 2x_2^2$, suponga que nos encontramos en el punto inicial $x_0 = \begin{pmatrix} 2 \\ 2 \end{pmatrix}$. Emplearemos la dirección de máximo descenso $d_0 = -\nabla f(x_0)$. 
+
+Considerando una constante de holgura $\mu = 0.1$ y utilizando el algoritmo de \textit{Backtracking} con un factor de contracción de $0.5$, encuentre un tamaño de paso aceptable empezando con $\alpha = 1$. Realice las iteraciones necesarias hasta cumplir el Criterio de Armijo.
+
+\textbf{Resolución:}
+
+1. \textbf{Cálculos iniciales:}
+\begin{itemize}
+    \item Gradiente: $\nabla f(x) = \begin{pmatrix} 4x_1 \\ 4x_2 \end{pmatrix} \implies \nabla f(x_0) = \begin{pmatrix} 8 \\ 8 \end{pmatrix}$
+    \item Dirección de descenso: $d_0 = -\nabla f(x_0) = \begin{pmatrix} -8 \\ -8 \end{pmatrix}$
+    \item Valor inicial de la función: $f(x_0) = 2(2)^2 + 2(2)^2 = 16$
+    \item Producto punto inicial: $\nabla f(x_0)^T d_0 = (8)(-8) + (8)(-8) = -128$
+\end{itemize}
+
+2. \textbf{Ecuación de la Condición de Armijo:}
+Sustituyendo los valores iniciales en la desigualdad $f(x_0 + \alpha d_0) \leq f(x_0) + \alpha \mu \nabla f(x_0)^T d_0$:
+$$f(x_0 + \alpha d_0) \leq 16 + \alpha (0.1) (-128)$$
+$$f(x_0 + \alpha d_0) \leq 16 - 12.8 \alpha$$
+
+3. \textbf{Proceso Iterativo:}
+
+\textbf{Iteración 1:} Probamos con $\alpha = 1$
+\begin{itemize}
+    \item Nuevo punto: $x_0 + (1)d_0 = \begin{pmatrix} 2 - 8 \\ 2 - 8 \end{pmatrix} = \begin{pmatrix} -6 \\ -6 \end{pmatrix}$
+    \item Evaluamos la función: $f(-6, -6) = 2(-6)^2 + 2(-6)^2 = 72 + 72 = 144$
+    \item Evaluamos el lado derecho: $16 - 12.8(1) = 3.2$
+    \item ¿Se cumple $144 \leq 3.2$? \textbf{Falso.} Reducimos el paso por la mitad: $\alpha = 0.5$
+\end{itemize}
+
+\textbf{Iteración 2:} Probamos con $\alpha = 0.5$
+\begin{itemize}
+    \item Nuevo punto: $x_0 + (0.5)d_0 = \begin{pmatrix} 2 - 4 \\ 2 - 4 \end{pmatrix} = \begin{pmatrix} -2 \\ -2 \end{pmatrix}$
+    \item Evaluamos la función: $f(-2, -2) = 2(-2)^2 + 2(-2)^2 = 8 + 8 = 16$
+    \item Evaluamos el lado derecho: $16 - 12.8(0.5) = 16 - 6.4 = 9.6$
+    \item ¿Se cumple $16 \leq 9.6$? \textbf{Falso.} Reducimos el paso por la mitad: $\alpha =  0.25$
+\end{itemize}
+
+\textbf{Iteración 3:} Probamos con $\alpha = 0.25$
+\begin{itemize}
+    \item Nuevo punto: $x_0 + (0.25)d_0 = \begin{pmatrix} 2 - 2 \\ 2 - 2 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$
+    \item Evaluamos la función: $f(0, 0) = 2(0)^2 + 2(0)^2 = 0$
+    \item Evaluamos el lado derecho: $16 - 12.8(0.25) = 16 - 3.2 = 12.8$
+    \item ¿Se cumple $0 \leq 12.8$? \textbf{Verdadero.} 
+\end{itemize}
+
+\textbf{Conclusión:} El algoritmo de búsqueda inexacta acepta el tamaño de paso $\alpha = 0.25$, ya que garantiza un descenso suficiente según el Criterio de Armijo.
+
+
+\textbf{Pseudocodigo Armijo}
+
+\begin{algorithm}[H]
+\caption{Búsqueda Inexacta mediante Criterio de Armijo (Backtracking)}
+\label{alg:armijo}
+\begin{algorithmic}[1]
+    \State \textbf{Función} BusquedaArmijo($f, \nabla f, x_k, d_k, \alpha_{\text{inicial}}, \mu, \text{factor\_contraccion}$):
+    \vspace{0.15cm}
+    \State \textit{// Inicializamos el tamaño de paso}
+    \State $\alpha = \alpha_{\text{inicial}}$
+    \vspace{0.15cm}
+    \State \textit{// Mientras la función en el nuevo punto no cumpla el descenso}
+    \While{$f(x_k + \alpha d_k) > f(x_k) + \mu \alpha (\nabla f(x_k)^T d_k)$}
+        \State \textit{// Reducimos el tamaño del paso}
+        \State $\alpha = \text{factor\_contraccion} \cdot \alpha$
+    \EndWhile
+    \vspace{0.15cm}
+    \State \textbf{Retornar} $\alpha$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\textbf{Condiciones de Wolfe}
+
+
+Las Condiciones de Wolfe son una extensión de la Condición de Armijo, creadas para solucionar los problemas de esta última. Dado que en Armijo un $\alpha$ suficientemente pequeño ya cumple para aprobar el paso, se puede generar una tardanza excesiva para llegar al óptimo. Para contrarrestar esto, se incorpora una segunda restricción llamada Condición de Curvatura. Esta regla exige que el nuevo punto tenga una pendiente menos negativa; que es mayor, que la del punto inicial; esto nos indica que la función se está aplanando y, de este modo, nos acercamos efectivamente a un mínimo.
+
+Las condiciones conjuntas son:
+
+\textbf{Condición de Armijo:}
+$$f(x_k + \alpha d_k) \leq f(x_k) + c_1 \alpha \nabla f(x_k)^T d_k$$
+(donde $0 < c_1 < 1$)
+
+\textbf{Condición de Curvatura:}
+$$\nabla f(x_k + \alpha d_k)^T d_k \geq c_2 \nabla f(x_k)^T d_k$$
+(donde $c_1 < c_2 < 1$)
+
+Esto exige que, tras dar el paso de $\alpha$, la pendiente en dirección $d_k$ no sea demasiado negativa: en otras palabras, que hayamos pasado la zona de fuerte descenso y estamos ya acercándonos a un mínimo a lo largo de esa dirección.
+
+\textbf{Condición Fuerte de Wolfe:}
+Para evitar que el paso sea excesivamente largo y rebase el mínimo, en la práctica se suele aplicar el valor absoluto a la derivada direccional, exigiendo que la pendiente se acerque a cero. A esto se le conoce como la Condición Fuerte de Wolfe:
+$$|\nabla f(x_k + \alpha d_k)^T d_k| \leq c_2 |\nabla f(x_k)^T d_k|$$
+
+Para poder realizar la búsqueda bajo las Condiciones de Wolfe (y su variante fuerte), el algoritmo requiere estos pasos:
+\begin{itemize}
+    \item \textbf{Fase de Encuadre:} Se aumenta progresivamente el tamaño del paso $\alpha$ hasta encontrar un intervalo numérico inicial $[u, v]$ donde cambian los signos de las pendientes, garantizando que el mínimo se encuentra allí dentro.
+    \item \textbf{Fase de Acercamiento:} Se interpola iterativamente dentro de ese intervalo (típicamente utilizando el método de bisección, calculando $\alpha = \frac{u+v}{2}$) y actualizando los extremos $u$ y $v$ para refinar el valor de $\alpha$ hasta que satisfaga simultáneamente el decrecimiento (Armijo) y la curvatura (Wolfe fuerte).
+\end{itemize}
+
+\textbf{Ventajas principales:}
+\begin{itemize}
+\item
+Avance significativo: Permite avanzar de manera constante y con pasos suficientemente grandes que sean significativos sin pasar de largo.
+\item
+Estabilidad numérica: Garantiza la estabilidad numérica necesaria para métodos como el BFGS.
+\end{itemize}
+
+\textbf{Limitaciones:}
+\begin{itemize}
+\item
+Mayor complejidad computacional: Aumenta la complejidad computacional, ya que exige evaluar el gradiente (la derivada) en cada iteración de prueba para verificar la curvatura.
+\item
+Convergencia local: Tampoco garantiza encontrar un óptimo global si la función no es convexa.
+\end{itemize}
+
+\textbf{Pseudocodigo Wolfe}
+
+\begin{algorithm}[H]
+\caption{Búsqueda de Tamaño de Paso (Condiciones de Wolfe - Bisección)}
+\label{alg:wolfe_biseccion}
+\begin{algorithmic}[1]
+    \State \textbf{Función} BiseccionWolfe($\nabla f, x_k, d_k, u, v, \mu$):
+    \vspace{0.15cm}
+    \State $\alpha = v$
+    \While{$|\nabla f(x_k + \alpha d_k)^T d_k| > \mu |\nabla f(x_k)^T d_k|$}
+        \State $\alpha = \frac{u + v}{2}$
+        \If{$\nabla f(x_k + \alpha d_k)^T d_k > 0$}
+            \State $v = \alpha$
+        \Else
+            \State $u = \alpha$
+        \EndIf
+    \EndWhile
+    \vspace{0.15cm}
+    \State $\alpha = \frac{u + v}{2}$
+    \State \textbf{Retornar} $\alpha$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+\subsection{Criterio de Parada en Métodos Clásicos}
+
+En los métodos de optimización numérica (como el método de Newton-Raphson o Quasi-Newton), la solución óptima \(x^*\) se busca de manera
+iterativa generando una secuencia de puntos \(x^{(0)}, x^{(1)}, \dots, x^{(k)}, x^{(k+1)}\). Debido a que los algoritmos numéricos rara vez 
+alcanzan la solución exacta en un número finito de pasos, se deben 
+establecer criterios de parada o condiciones de convergencia para 
+finalizar el proceso iterativo cuando la solución obtenida sea lo 
+suficientemente precisa.
+
+Los criterios de parada son condiciones que indican la finalización del 
+proceso iterativo de un algoritmo. Dichos criterios se establecen a 
+partir de las características del problema y método utilizado. 
+
+Típicamente, el algoritmo detiene sus iteraciones en el paso \(k\) si se
+satisface alguna de las siguientes condiciones (o una combinación de 
+ellas):
+
+\textbf{Criterio de Estacionariedad (Magnitud del Gradiente)}
+
+Dado que en un punto óptimo no restringido o en la dirección de 
+búsqueda adecuada el gradiente debe anularse (\(\nabla f(x^*) = 0\)),
+el algoritmo se detiene cuando la norma del gradiente es menor o igual 
+a una tolerancia prefijada \(\varepsilon_1 > 0\):
+
+$$\Vert{}\nabla f(x^{(k)})\Vert{} \le \varepsilon_1$$
+
+\textbf{Cambio en las Variables de Decisión}
+
+Evalúa si las variables de decisión \(x\) han dejado de cambiar de manera significativa entre dos iteraciones consecutivas. Se puede medir de forma absoluta o relativa respecto a una tolerancia \(\varepsilon_2 > 0\):
+
+\begin{itemize}
+\item
+Criterio Absoluto:
+$$\Vert{}x^{(k+1)} - x^{(k)}\Vert{} \le \varepsilon_2$$
+\item
+Criterio Relativo:
+$$\frac{\Vert{}x^{(k+1)} - x^{(k)}}{\Vert{}x^{(k)}\Vert{}} \le \varepsilon_2 \quad (\text{para } \Vert{}x^{(k)}\Vert{} \neq 0)$$
+\end{itemize}
+
+\textbf{Cambio en el Valor de la Función Objetivo}
+
+Evalúa si la mejora en la función objetivo entre la iteración actual y 
+la anterior es imperceptible o menor a una tolerancia \(\varepsilon_3 > 0\):
+
+$$\vert{}f(x^{(k+1)}) - f(x^{(k)})\vert{} \le \varepsilon_3$$
+
+\textbf{Límite de Iteraciones}
+
+Como medida de seguridad para evitar bucles infinitos por lenta o nula
+convergencia o problemas numéricos, se establece un número máximo de 
+iteraciones \(K_{\max}\):
+
+$$k \ge K_{\max}$$
+
+
+
+\subsection{Simulación Computacional y Corridas de Ejecución (Casos de Estudio)}
+
+\newpage
+% -------------------------------------------------------------------------
+\section{Optimización para Funciones Diferenciables Con Restricciones}
+\label{sec:diferenciables_con_restricciones}
+
+En este capítulo se abordan los fundamentos teóricos y los métodos 
+numéricos para la resolución de problemas de optimización con 
+restricciones, bajo el supuesto de que tanto la función objetivo como 
+las restricciones son diferenciables. Primero, se establecen las 
+condiciones analíticas que caracterizan a un punto óptimo, derivadas 
+de los multiplicadores de Lagrange (para restricciones de igualdad) y 
+de las condiciones de Karush-Kuhn-Tucker (para desigualdades). 
+Posteriormente, se presentan estrategias de transformación a 
+problemas sin restricciones, como los métodos de penalización 
+externa y barrera logarítmica. Finalmente, se ilustra la implementación 
+computacional de estos conceptos mediante una simulación práctica.
+
+\subsection{Condiciones Teóricas para Garantizar la Solución Óptima}
+
+Para determinar si un punto candidato es efectivamente una solución 
+óptima de un problema con restricciones, es necesario recurrir a 
+condiciones analíticas basadas en el cálculo diferencial. Estas 
+condiciones se expresan en términos de los gradientes de la función 
+objetivo y de las restricciones activas en el punto en cuestión.
+
+Las condiciones de primer orden (necesarias) establecen que el 
+gradiente de la función Lagrangiana debe anularse en el punto 
+estacionario. Sin embargo, para garantizar que dicho punto sea un 
+óptimo local (y no un punto de silla o un máximo en un problema de 
+minimización), se requiere el análisis de las condiciones de segundo 
+orden o, de manera más general, el estudio de las propiedades de 
+convexidad (para minimización) o concavidad (para maximización) de 
+la función objetivo, así como la convexidad del espacio factible.
+
+Cuando el problema es convexo, las condiciones necesarias de 
+primer orden se convierten también en suficientes, lo que permite 
+clasificar el óptimo como global. A continuación, se desarrollan los 
+dos marcos analíticos fundamentales para abordar restricciones de 
+igualdad y desigualdad, respectivamente.
+
+
+
+\subsubsection{Multiplicadores de Lagrange (Igualdades)}
+
+El método Lagrangiano es un procedimiento para encontrar los máximos y mínimos relativos (o locales) de funciones de múltiples variables sujetas a restricciones.
+El método consiste en transformar un problema de optimización con 
+restricciones en un problema sin restricciones equivalente mediante una 
+nueva función llamada \textbf{Función Lagrangiana}.
+
+Dada la función objetivo \(f(\mathbf{X})\) sujeta a restricciones de igualdad \(\mathbf{g}(\mathbf{X}) = \mathbf{0}\), la función Lagrangiana se define como:
+$$L(\mathbf{X}, \boldsymbol{\lambda}) = f(\mathbf{X}) - \boldsymbol{\lambda} \mathbf{g}(\mathbf{X})$$
+
+La función \(\boldsymbol{\L}\) se llama función Lagrangiana y los elementos del vector \(\boldsymbol{\lambda}\) constituyen los \textbf{multiplicadores de Lagrange}. Por definición, estos multiplicadores tienen la misma
+interpretación que los coeficientes de sensibilidad del método 
+Jacobiano.
+$$\boldsymbol{\lambda} = \frac{\partial f}{\partial \mathbf{g}}$$
+
+Para determinar los puntos estacionarios \((\mathbf{X}^*, \boldsymbol{\lambda}^*)\), se deben calcular las derivadas parciales de \(L\) con respecto a todas las variables de decisión (\(\mathbf{X}\)) y con respecto a todos los multiplicadores (\(\boldsymbol{\lambda}\)), e igualarlas a cero:
+$$\frac{\partial L}{\partial \boldsymbol{\lambda}} = \mathbf{0} \quad \text{y} \quad \frac{\partial L}{\partial \mathbf{X}} = \mathbf{0}$$
+
+Proporcionando el siguiente sistema de ecuaciones:
+
+$$\frac{\partial L}{\partial x_j} = \frac{\partial}{\partial x_j}\left(f(\mathbf{X}) - \boldsymbol{\lambda}\mathbf{g}(\mathbf{X})\right) = 0, \quad j = 1, 2, \dots, n$$
+$$\frac{\partial L}{\partial \boldsymbol{\lambda}} = -\mathbf{g}(\mathbf{X}) = \mathbf{0}$$
+
+Las ecuaciones resultantes, junto con las ecuaciones de restricción \(\mathbf{g}(\mathbf{X}) = \mathbf{0}\), producen los valores factibles de \(\mathbf{X}\) y \(\boldsymbol{\lambda}\) que satisfacen las condiciones necesarias para los puntos estacionarios.
+
+
+\subsubsection{Condiciones de Karush-Kuhn-Tucker - KKT (Desigualdades)}
+
+El Teorema de Karush-Kuhn-Tucker (KKT) establece las condiciones 
+necesarias de primer orden para que un punto \(x^*\) sea una solución 
+óptima en un problema de optimización.
+
+\textbf{Teorema:}
+
+Si \(x^*\) es una solución optima para restricciones activas  y 
+$\nabla g_i(x^*)$, $\nabla h_i(x^*)$ son linealmente independientes 
+(lo que garantiza la condición de Regularidad) para todo 
+\(i\in \{1, \dots, n\}\) entonces existen multiplicadores 
+$\lambda_i$, $i = 1, \dots, l$ y $\mu_i$, $i = 1, \dots, p$  tales que 
+se cumplen las siguientes tres condiciones:
+
+\begin{itemize}
+\item
+Lagrangiano: La suma del gradiente de la función objetivo y la combinación lineal de los gradientes de las restricciones debe ser igual a cero:
+
+$$\nabla f(x^*) + \sum_{i=1}^{l} \lambda_i \nabla g_i(x^*) + \sum_{i=1}^{p} \mu_i \nabla h_i(x^*) = 0$$
+
+\item
+Complementaridad: Para cada restricción de desigualdad, el producto entre el valor de la función de restricción evaluada en \(x^*\) y su correspondiente multiplicador $\lambda_i$ debe ser igual a cero:
+$$g_i(x^*) \lambda_i = 0, \quad i = 1, \dots, l$$
+
+\item
+Factibilidad: El punto \(x^*\) debe cumplir con todas las restricciones del problema original (las de igualdad deben ser exactamente cero y las de desigualdad deben ser menores o iguales a cero):
+
+$$\begin{aligned}
+h_i(x^*) = 0, & \quad i = 1, \dots, p \\[1ex]
+g_i(x^*) \le 0, & \quad i = 1, \dots, l
+\end{aligned}$$
+\end{itemize}
+
+Las condiciones KKT necesarias también son suficientes si la función 
+objetivo y el espacio de soluciones satisfacen las condiciones que Hamdy Taha explica con la siguiente tabla:
+\begin{table}[H]
+\centering
+\caption{Suficiencia de las condiciones KKT}
+\begin{tabular}{lll}
+\hline
+\multirow{*}{\textbf{Sentido de la optimización}} & \multicolumn{2}{c}{\textbf{Condiciones requeridas}} \\ \cline{2-3} 
+ & \textbf{Función objetivo} & \textbf{Espacio de soluciones} \\ \hline
+Maximización & Cóncava & Conjunto convexo \\
+Minimización & Convexa & Conjunto convexo \\ \hline
+\end{tabular}
+\end{table}
+
+Es más fácil verificar que una función sea convexa o cóncava que 
+demostrar que un espacio de soluciones es convexo.
+
+
+% =========================================================================
+% SECCIÓN 4.2: TRANSFORMACIÓN A PROBLEMAS NO RESTRINGIDOS
+% =========================================================================
+\subsection{Transformación a Problemas No Restringidos}
+\label{subsec:transformacion_no_restringidos}
+
+En la optimización no lineal, resolver de manera directa problemas con restricciones de igualdad y/o desigualdad plantea dificultades computacionales elevadas. Una estrategia clásica consiste en transformar el problema restringido original en una secuencia de subproblemas de \textbf{optimización no restringida}.
+
+Dado el problema general de optimización:
+\begin{equation}
+\begin{aligned}
+\min_{x \in \mathbb{R}^n} \quad & f(x) \\
+\text{s.j.a } \quad & g_i(x) \ge 0, \quad i = 1, \dots, L \\
+& h_j(x) = 0, \quad j = 1, \dots, p
+\end{aligned}
+\end{equation}
+
+La transformación se efectúa construyendo una \textbf{función auxiliar} $P(x; \mu)$ que incorpora la función objetivo $f(x)$ junto con un término de penalización o barrera ponderado por un parámetro $\mu > 0$.
+
+\subsubsection{Método de Penalización Externa}
+\label{subsubsec:penalizacion_externa}
+
+\subsubsection*{Función Penalizadora $r(x)$}
+
+En optimización convexa, la \textbf{función indicadora} $r(x)$ (o penalización infinita) permite transformar de manera exacta un problema de minimización restringido sobre un conjunto convexo $C \subset \mathbb{R}^n$:
+
+$$\min_{x \in \mathbb{R}^n} f(x) \quad \text{sujeto a} \quad x \in C$$
+
+en un problema global no restringido mediante la extensión del dominio de la función objetivo:
+
+$$\min_{x \in \mathbb{R}^n} \left\{ f(x) + r(x) \right\}$$
+
+donde $r(x)$ se define formalmente como:
+
+$$r(x) = \begin{cases} 0 & \text{si } x \in C \\ +\infty & \text{si } x \notin C \end{cases}$$
+
+\subsubsection*{Características}
+\begin{itemize}
+    \item \textbf{Equivalencia Exacta:} No altera los valores de $f(x)$ dentro de la región factible $C$ y prohíbe de forma absoluta cualquier punto fuera de ella.
+    \item \textbf{Preservación de Convexidad:} Si el conjunto $C$ es convexo y cerrado, la función $r(x)$ es una función convexa extendida y propia ($r: \mathbb{R}^n \to \mathbb{R} \cup \{+\infty\}$).
+    \item \textbf{No Diferenciabilidad:} Es discontinua en la frontera del conjunto ($\partial C$). No posee gradiente en el sentido clásico, por lo que los métodos de optimización basados en derivadas ($\nabla f$) no se pueden aplicar directamente.
+    \item \textbf{Subdiferencial:} En lugar de gradientes, en análisis convexo se utiliza su subdiferencial $\partial r(x)$, el cual equivale al \textbf{cono normal} a $C$ en el punto $x$:
+    $$\partial r(x) = N_C(x) = \{ v \in \mathbb{R}^n \mid v^T(y - x) \le 0, \, \forall y \in C \}$$
+\end{itemize}
+
+
+\subsubsection*{Función Penalizadora Cuadrática}
+
+Para superar la falta de diferenciabilidad de la función indicadora $r(x)$ en la práctica computacional, se utiliza una \textbf{aproximación suave}. Para un conjunto definido por restricciones de desigualdad $g_i(x) \le 0$ ($i = 1, \dots, m$), se mide el nivel de violación $g_i^+(x) = \max(0, g_i(x))$ y se reemplaza el $+\infty$ por un costo cuadrático proporcional a un parámetro de penalización $\mu_k > 0$:
+
+$$P(x, \mu_k) = f(x) + \frac{\mu_k}{2} \sum_{i=1}^{m} \left( \max(0, g_i(x)) \right)^2$$
+
+\subsubsection*{Características}
+\begin{itemize}
+    \item \textbf{Diferenciabilidad $C^1$:} Al elevar la violación al cuadrado, la función pasa a ser continuamente diferenciable, permitiendo calcular su gradiente:
+    $$\nabla P(x, \mu_k) = \nabla f(x) + \mu_k \sum_{i=1}^{m} \max(0, g_i(x)) \nabla g_i(x)$$
+    \item \textbf{Aproximación Exterior:} Permite que las iteraciones intermedias pasen temporalmente por zonas infactibles ($g_i(x) > 0$), penalizando la distancia a la frontera.
+    \item \textbf{Comportamiento Límite:} Cuando el parámetro tiende a infinito ($\mu_k \to +\infty$), la penalización cuadrática converge a la función indicadora $r(x)$:
+    $$\lim_{\mu_k \to +\infty} \frac{\mu_k}{2} \sum_{i=1}^{m} \left( \max(0, g_i(x)) \right)^2 = r(x)$$
+    \item \textbf{Sensibilidad Numérica:} Si $\mu_k$ se fija en un valor extremadamente alto desde el inicio (e.g. $10^{20}$), la matriz Hessiana se vuelve mal condicionada ($\text{cond}(\nabla^2 P) \to \infty$). Por ello, $\mu_k$ debe incrementarse de forma progresiva.
+\end{itemize}
+
+\subsection*{Pseudocódigo de Penalización Cuadrática Exterior}
+
+
+\begin{algorithm}[H]
+\caption{Búsqueda Inexacta mediante Criterio de Armijo (Backtracking)}
+\label{alg:armijo}
+\begin{algorithmic}[1]
+    \State \textbf{Función} BusquedaArmijo($f, \nabla f, x_k, d_k, \alpha_{\text{inicial}}, \mu, \text{factor\_contraccion}$):
+    \vspace{0.15cm}
+    \State \textit{// Inicializamos el tamaño de paso}
+    \State $\alpha = \alpha_{\text{inicial}}$
+    \vspace{0.15cm}
+    \State \textit{// Mientras la función en el nuevo punto no cumpla el descenso}
+    \State \textbf{Mientras} $f(x_k + \alpha d_k) > f(x_k) + \mu \alpha (\nabla f(x_k)^T d_k)$ \textbf{hacer:}
+    \State \quad \textit{// Reducimos el tamaño del paso}
+    \State \quad $\alpha = \text{factor\_contraccion} \cdot \alpha$
+    \State \textbf{Fin Mientras}
+    \vspace{0.15cm}
+    \State \textbf{Retornar} $\alpha$
+\end{algorithmic}
+\end{algorithm}
+
+
+\paragraph{Ejemplo de Aplicación: Penalización Externa}
+Considérese el problema unidimensional:
+\begin{equation}
+\begin{aligned}
+\min_{x \in \mathbb{R}} \quad & f(x) = x^2 \\
+\text{s.j.a } \quad & x \ge 1 \quad (\Rightarrow g(x) = x - 1 \ge 0)
+\end{aligned}
+\end{equation}
+
+\begin{enumerate}
+    \item \textbf{Construcción de la función de penalización:} Para $x < 1$, la restricción se viola, por lo que:
+    \begin{equation}
+    P_\mu(x) = x^2 + \mu (\max\{0, 1 - x\})^2
+    \end{equation}
+    
+    \item \textbf{Resolución del subproblema no restringido ($\arg\min_x P_\mu(x)$):} Derivando e igualando a cero respecto a $x$ para la región infactible ($x < 1$):
+    \begin{equation}
+    \frac{d}{dx} P_\mu(x) = 2x + 2\mu (1 - x)(-1) = 2x - 2\mu + 2\mu x = 0
+    \end{equation}
+    \begin{equation}
+    2x(1 + \mu) = 2\mu \implies x^*(\mu) = \frac{\mu}{1 + \mu}
+    \end{equation}
+    
+    \item \textbf{Convergencia ($\mu \to \infty$):}
+    \begin{equation}
+    \lim_{\mu \to \infty} x^*(\mu) = \lim_{\mu \to \infty} \frac{\mu}{1 + \mu} = 1 = x^*
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Método de Barrera Logarítmica (Punto Interior)}
+\label{subsubsec:barrera_logaritmica}
+
+
+El \textbf{Método de Barrera Logarítmica} es un algoritmo para resolver problemas de optimización no lineal con restricciones de desigualdad. Pertenece a la familia de métodos de \textit{puntos interiores} debido a que mantiene todas las iteraciones estrictamente dentro de la región factible (sin tocar ni violar las fronteras).
+
+A diferencia de los métodos de penalización externa (que abordan las restricciones desde afuera), el método de barrera añade un término a la función objetivo que tiende a $+\infty$ a medida que el punto $x$ se aproxima a la frontera de la región factible. Esto crea un "muro de potencial" invisible que impide al algoritmo salir del área válida.
+
+
+Dado el problema de minimización con restricciones de desigualdad:
+\begin{equation*}
+    \min_{x \in \mathbb{R}^n} f(x) \quad \text{sujeto a} \quad g_i(x) \le 0, \quad i = 1, \dots, m
+\end{equation*}
+
+Definimos la \textbf{región estrictamente factible (interior)} como:
+\begin{equation*}
+    \mathcal{F}^0 = \{ x \in \mathbb{R}^n \mid g_i(x) < 0, \; \forall i = 1, \dots, m \}
+\end{equation*}
+
+\subsubsection*{Función Objetivo Modificada (Función de Barrera)}
+Para incorporar las restricciones dentro de un subproblema no restringido, construimos la función $B(x, \mu_k)$:
+\begin{equation*}
+    B(x, \mu_k) = f(x) - \mu_k \sum_{i=1}^{m} \ln\big(-g_i(x)\big)
+\end{equation*}
+
+donde:
+\begin{itemize}
+    \item $-g_i(x) > 0$ se cumple siempre que $x \in \mathcal{F}^0$, por lo que el logaritmo está bien definido.
+    \item $\mu_k > 0$ es el \textbf{parámetro de barrera}.
+    \item Si $x$ se aproxima a la frontera ($g_i(x) \to 0^-$), el término $-g_i(x) \to 0^+$, lo cual implica que $\ln(-g_i(x)) \to -\infty$ y por ende $-\mu_k \ln(-g_i(x)) \to +\infty$.
+\end{itemize}
+
+\subsubsection*{Convergencia y Reducción del Parámetro}
+En cada iteración $k$, se resuelve el subproblema de minimización:
+\begin{equation*}
+    x^{(k)} = \arg\min_{x \in \mathcal{F}^0} B(x, \mu_k)
+\end{equation*}
+
+Posteriormente, el parámetro de barrera se reduce mediante un factor $\sigma \in (0, 1)$:
+\begin{equation*}
+    \mu_{k+1} = \sigma \cdot \mu_k
+\end{equation*}
+
+A medida que $k \to \infty$ y $\mu_k \to 0$, la influencia de la barrera disminuye en el interior y la solución del subproblema converge a la solución real del problema original:
+\begin{equation*}
+    \lim_{\mu_k \to 0} x^*(\mu_k) = x^*
+\end{equation*}
+
+\subsection*{Pseudocódigo Barrera Logaritmica}
+
+\begin{algorithm}[H]
+\caption{Método de Barrera Logarítmica (Puntos Interiores)}
+\label{alg:barrera_logaritmica}
+\begin{algorithmic}[1]
+    \State \textbf{Función} BarreraLogaritmica($f, g, x^0, \mu_1, \sigma, \varepsilon, K_{\max}$):
+    \vspace{0.15cm}
+    \State $k = 1$
+    \State $x^{(1)} = x^0$ \quad \textit{(Punto estrictamente interior $g_i(x^0) < 0$)}
+    \State \textbf{Mientras que} $\mu_k > \varepsilon$ \textbf{y} $k < K_{\max}$ \textbf{hacer:}
+    \State \quad Formar $B(x, \mu_k) = f(x) - \mu_k \sum_{i=1}^m \ln(-g_i(x))$
+    \State \quad $x^{(k+1)} = \arg\min_{x \in \mathcal{F}^0} B(x, \mu_k)$ \quad \textit{(Usando Newton o Quasi-Newton con Armijo)}
+    \State \quad $\mu_{k+1} = \sigma \cdot \mu_k$
+    \State \quad $k = k + 1$
+    \State \textbf{Fin Mientras}
+    \vspace{0.15cm}
+    \State \textbf{Retornar} $x^{(k)}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection*{Ejemplo de Aplicación}
+
+Queremos resolver el siguiente problema de optimización no lineal con restricciones de desigualdad:
+\begin{equation*}
+    \min_{x} f(x) = x_1^2 + x_2^2
+\end{equation*}
+\begin{equation*}
+    \text{Sujeto a: } g_1(x) = 1 - x_1 x_2 \le 0 \quad (x_1 x_2 \ge 1)
+\end{equation*}
+
+\paragraph{Parámetros iniciales:}
+\begin{itemize}
+    \item Punto inicial interior: $x^{(0)} = (2, 2)^T \implies g_1(2,2) = -3 < 0 \quad \checkmark$
+    \item Parámetro inicial de barrera: $\mu_1 = 1.0$
+    \item Factor de reducción: $\sigma = 0.5 \implies \mu_{k+1} = 0.5 \cdot \mu_k$
+\end{itemize}
+
+---
+
+\subsection*{Construcción del Subproblema}
+La función objetivo modificada incorporando la barrera logarítmica es:
+\begin{equation*}
+    B(x, \mu_k) = x_1^2 + x_2^2 - \mu_k \ln(x_1 x_2 - 1)
+\end{equation*}
+
+Por la simetría del problema ($x_1 = x_2 = x$), igualamos la derivada a cero para obtener la solución exacta en cada subproblema:
+\begin{equation*}
+    \frac{d B}{d x} = 4x - \frac{2x \cdot \mu_k}{x^2 - 1} = 0 \implies x^*(\mu_k) = \sqrt{1 + \frac{\mu_k}{2}}
+\end{equation*}
+
+---
+
+\subsection*{Ejecució n Paso a Paso}
+
+\paragraph{Iteración 1 ($k = 1$):}
+\begin{itemize}
+    \item $\mu_1 = 1.0$
+    \item $x_1^{(1)} = x_2^{(1)} = \sqrt{1 + \frac{1.0}{2}} = \sqrt{1.5} \approx 1.2247$
+    \item $x^{(1)} = (1.2247, \, 1.2247)^T$
+    \item $f(x^{(1)}) = (1.2247)^2 + (1.2247)^2 = 3.0000$
+    \item $g_1(x^{(1)}) = 1 - (1.2247)(1.2247) = -0.5000 < 0 \quad \checkmark$
+    \item $\mu_2 = 0.5 \cdot 1.0 = 0.5$
+\end{itemize}
+
+\paragraph{Iteración 2 ($k = 2$):}
+\begin{itemize}
+    \item $\mu_2 = 0.5$
+    \item $x_1^{(2)} = x_2^{(2)} = \sqrt{1 + \frac{0.5}{2}} = \sqrt{1.25} \approx 1.1180$
+    \item $x^{(2)} = (1.1180, \, 1.1180)^T$
+    \item $f(x^{(2)}) = (1.1180)^2 + (1.1180)^2 = 2.5000$
+    \item $g_1(x^{(2)}) = 1 - (1.1180)(1.1180) = -0.2500 < 0 \quad \checkmark$
+    \item $\mu_3 = 0.5 \cdot 0.5 = 0.25$
+\end{itemize}
+
+\paragraph{Iteración 3 ($k = 3$):}
+\begin{itemize}
+    \item $\mu_3 = 0.25$
+    \item $x_1^{(3)} = x_2^{(3)} = \sqrt{1 + \frac{0.25}{2}} = \sqrt{1.125} \approx 1.0607$
+    \item $x^{(3)} = (1.0607, \, 1.0607)^T$
+    \item $f(x^{(3)}) = (1.0607)^2 + (1.0607)^2 = 2.2500$
+    \item $g_1(x^{(3)}) = 1 - (1.0607)(1.0607) = -0.1250 < 0 \quad \checkmark$
+    \item $\mu_4 = 0.5 \cdot 0.25 = 0.125$
+\end{itemize}
+
+\subsection*{Tabla Resumen de Resultados}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Iteración ($k$)} & $\mu_k$ & $x_1^{(k)}$ & $x_2^{(k)}$ & $f(x^{(k)})$ & $g_1(x^{(k)})$ \\
+\midrule
+0 & $1.000$ & $2.0000$ & $2.0000$ & $8.0000$ & $-3.0000$ \\
+1 & $1.000$ & $1.2247$ & $1.2247$ & $3.0000$ & $-0.5000$ \\
+2 & $0.500$ & $1.1180$ & $1.1180$ & $2.5000$ & $-0.2500$ \\
+3 & $0.250$ & $1.0607$ & $1.0607$ & $2.2500$ & $-0.1250$ \\
+\bottomrule
+\end{tabular}
+\caption{Evolución de las iteraciones del método de barrera logarítmica.}
+\end{table}
+
+
+% =========================================================================
+% SECCIÓN 4.3: SIMULACIÓN COMPUTACIONAL / EJEMPLO
+% =========================================================================
+\section{Simulación Computacional de un Problema Restringido}
+
+Para ilustrar el funcionamiento de la transformación de un problema restringido a uno no restringido, se presenta el siguiente problema unidimensional básico:
+
+\[
+\min f(x) = \frac{1}{2}(x - 2)^2 \quad \text{s.a.} \quad g(x) = x^2 - 1 \le 0
+\]
+
+\subsection{Análisis del Dominio Factible}
+Resolviendo la desigualdad de la restricción:
+\[
+x^2 - 1 \le 0 \implies x^2 \le 1 \implies |x| \le 1 \implies -1 \le x \le 1
+\]
+Por lo tanto, la región factible está delimitada por el intervalo $[-1, 1]$.
+
+\subsection{Planteamiento por Penalización}
+El óptimo no restringido de $f(x) = \frac{1}{2}(x-2)^2$ se encuentra en $x^* = 2$. Sin embargo, $x = 2$ no pertenece al intervalo factible $[-1, 1]$.
+
+Definiendo la función de penalización $r(x)$:
+\[
+r(x) = 
+\begin{cases} 
+0 & \text{si } |x| \le 1 \\
++\infty & \text{en otro caso}
+\end{cases}
+\]
+
+La función objetivo modificada queda expresada como:
+\[
+P(x) = \frac{1}{2}(x - 2)^2 + r(x)
+\]
+
+Al minimizar $P(x)$, el valor mínimo dentro del conjunto restringido $[-1, 1]$ se alcanza exactamente en la frontera superior $x^* = 1$, con un valor objetivo de:
+\[
+f(1) = \frac{1}{2}(1 - 2)^2 = \frac{1}{2} = 0.5
+\]
+
+
+\newpage
+% -------------------------------------------------------------------------
+\section{Optimización para Funciones No Diferenciables mediante Algoritmos Genéticos}
+\label{sec:no_diferenciables}
+
+En esta sección se aborda el tratamiento de problemas de optimización donde la función objetivo no es continuamente diferenciable ($f \notin C^1$), presenta discontinuidades o posee picos y puntos angulosos (como expresiones con norma $L_1$ o valores absolutos). En estos escenarios, los métodos deterministas tradicionales fallan, haciendo necesario el uso de metaheurísticas estocásticas como los \textbf{Algoritmos Genéticos (AG)} \cite{estevez1997, quintana2024}.
+
+\subsection{Motivación y Justificación: ¿Por qué Algoritmos Genéticos?}
+
+\subsubsection{Limitaciones de los Métodos Basados en el Gradiente}
+Los métodos de optimización clásica, tales como el Descenso del Gradiente, el Método de Newton o las variantes Quasi-Newton, fundamentan su convergencia en la disponibilidad y continuidad del vector gradiente $\nabla f(x)$ y de la matriz Hessiana $\nabla^2 f(x)$ \cite{estevez1997}. Ante funciones no diferenciables, estos métodos enfrentan fallas estructurales graves:
+\begin{itemize}
+    \item \textbf{Inexistencia de Derivadas en Puntos Angulosos:} En los puntos de quiebre (como $f(x) = |x|$ en $x=0$), las derivadas parciales laterales difieren, por lo que el vector gradiente no está definido \cite{estevez1997}.
+    \item \textbf{Inestabilidad Numérica:} Las aproximaciones numéricas del gradiente mediante diferencias finitas producen valores extremadamente altos o indefinidos cerca de las discontinuidades, provocando oscilaciones severas o divergencia en las iteraciones \cite{estevez1997}.
+    \item \textbf{Estancamiento en Mínimos Locales o Puntos No Suaves:} Ante paisajes de búsqueda complejos o discontinuos, los algoritmos de descenso quedan atrapados en picos locales o en líneas de discontinuidad sin posibilidad de continuar la búsqueda \cite{estevez1997}.
+\end{itemize}
+
+\subsubsection{Ventajas de los Métodos Estocásticos / Heurísticos}
+Frente a las limitantes anteriores, los Algoritmos Genéticos ofrecen un enfoque alternativo basado en la exploración de paisajes de búsqueda no diferenciables \cite{estevez1997, quintana2024}:
+\begin{itemize}
+    \item \textbf{Evaluación Directa tipo Caja Negra (\textit{Black-Box}):} No requieren información sobre derivadas ni supuestos de continuidad ($\nabla f$ o $\nabla^2 f$). Solo necesitan un módulo de evaluación escalar que reciba un punto $x$ y devuelva el valor de la función objetivo $f(x)$ \cite{estevez1997}.
+    \item \textbf{Exploración Global Múltiple:} A diferencia de los métodos de punto único que siguen una trayectoria descendente local, los AG evalúan simultáneamente una \textit{población} de $N$ puntos dispersos en el espacio de búsqueda, reduciendo la probabilidad de estancarse en óptimos locales subóptimos \cite{estevez1997, quintana2024}.
+    \item \textbf{Adaptabilidad a Espacios Discretos o Mixtos:} Permiten trabajar directamente sobre variables continuas, discretas o codificaciones binarias sin modificar el algoritmo central \cite{quintana2024}.
+\end{itemize}
+
+\subsection{Fundamentación Teórica y Analogía Biológica}
+Los Algoritmos Genéticos son métodos de búsqueda estocástica guiada, inspirados en la teoría de la selección natural de Charles Darwin \cite{estevez1997}. El algoritmo hace evolucionar iterativamente un conjunto de soluciones candidatas denominadas \textbf{población} ($P$) a través de generaciones \cite{quintana2024}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Concepto Biológico} & \textbf{Equivalente en AG} \\ \hline
+Individuo / Organismo & Solución candidata $x \in \mathbb{R}^n$ \\
+Cromosoma / ADN & Vector de variables codificado \\
+Gen & Variable de decisión o bit individual \\
+Población $P(t)$ & Conjunto de $N$ vectores solución en la iteración $t$ \\
+Aptitud (\textit{Fitness}) & Función de ajuste $F(x)$ basada en $f(x)$ \\
+Selección Natural & Operador de preservación probabilística \\
+Recombinación (\textit{Crossover}) & Intercambio de información genotípica (explotación) \\
+Mutación & Alteración aleatoria de variables (exploración) \\ \hline
+\end{tabular}
+\caption{Correspondencia entre conceptos biológicos y optimización matemática.}
+\label{tab:analogia_ag}
+\end{table}
+
+\subsection{Elementos Esenciales del Algoritmo Genético}
+
+\subsubsection{Codificación de las Soluciones (Representación)}
+Las soluciones del espacio de búsqueda pueden ser mapeadas a dos tipos principales de representación:
+\begin{enumerate}
+    \item \textbf{Codificación Binaria:} El vector de decisión $x$ se traduce en una cadena de bits de longitud $L \in \{0,1\}^L$ \cite{estevez1997}.
+    \item \textbf{Codificación Real:} El cromosoma es directamente un vector de números reales $x = (x_1, x_2, \dots, x_n) \in \mathbb{R}^n$ \cite{quintana2024}.
+\end{enumerate}
+
+\subsubsection{Mapeo de la Función de Aptitud (\textit{Fitness Function})}
+Puesto que los operadores evolutivos premian a los candidatos con mayor valor numérico, en problemas de minimización $\min f(x)$ se transforma la función objetivo en una función de aptitud no negativa $F(x)$ mediante un desplazamiento por el peor individuo ($C_{\max}$) \cite{estevez1997}:
+\begin{equation}
+    F(x_i) = C_{\max} - f(x_i), \quad \text{donde } C_{\max} = \max_{j=1..N} \{f(x_j)\}
+\end{equation}
+
+\subsection{Fase de Selección de Individuos en la Población}
+
+El mecanismo de selección es el encargado de orientar la búsqueda hacia los puntos más prometedores de la población, es decir, aquellos que presentan la mayor adaptación observada hasta el momento \cite{estevez1997}. Este operador no genera puntos nuevos en el espacio de búsqueda, sino que determina qué individuos dejarán descendencia y en qué cantidad dentro de la próxima generación \cite{estevez1997}. A partir de la población actual, el operador genera una población intermedia del mismo tamaño $M$, reproduciendo con un mayor número de copias a los individuos más aptos y reduciendo o eliminando las copias de los menos aptos siguiendo el principio de seleccion natural \cite{estevez1997}.
+
+El algoritmo genético simple emplea una regla de supervivencia probabilística \cite{estevez1997}. Basado en el problema de la teoría de juegos (\textit{multi-armed bandit problem}), John Holland postuló que la estrategia de selección óptima consiste en aumentar de manera exponencial el número de copias del mejor individuo observado en comparación con el peor; dicho enfoque se denomina \textbf{selección proporcional} \cite{estevez1997}.
+
+\subsubsection{Selección Proporcional}
+
+En la selección proporcional, la probabilidad de selección $p_{i,t}$ del $i$-ésimo individuo en la población $P(t)$ depende de su adaptación relativa $f_i$ frente a la suma de las adaptaciones de la población \cite{estevez1997}:
+
+\begin{equation}
+    p_{i,t} = \frac{f_i}{\sum_{j=1}^{M} f_j}
+\end{equation}
+
+A partir de esta probabilidad, el número esperado de copias $N_e[i]$ que tendrá el $i$-ésimo individuo en la siguiente generación viene dado por \cite{estevez1997}:
+
+\begin{equation}
+    N_e[i] = M \cdot p_{i,t} = \frac{f_i}{\bar{f}_t}
+\end{equation}
+
+donde $M$ representa el tamaño total de la población y $\bar{f}_t$ es la adaptación promedio de la población $P(t)$ \cite{estevez1997}.
+
+En consecuencia, la fase de selección en algoritmos genéticos basada en valores esperados consta estructuralmente de dos partes \cite{estevez1997}:
+\begin{enumerate}
+    \item Determinación de los valores esperados de copias $N_e[i]$ \cite{estevez1997}.
+    \item Conversión de dichos valores esperados a números discretos de descendencia mediante un proceso de muestreo \cite{estevez1997}.
+\end{enumerate}
+
+\subsubsection{Método de la Ruleta}
+
+El algoritmo de muestreo original propuesto por Holland para llevar a cabo la conversión a números discretos se conoce como el \textbf{Método de la Ruleta} \cite{estevez1997}. Su objetivo es brindar un muestreo exacto, consistente y eficiente manteniendo la población en un tamaño constante $M$ \cite{estevez1997}.
+
+El procedimiento paso a paso del Método de la Ruleta se define de la siguiente manera \cite{estevez1997}:
+\begin{enumerate}
+    \item \textbf{Cálculo de Adaptación Total:} Determinar la suma $S$ de las adaptaciones de todos los individuos de la población ($S = \sum_{j=1}^{M} f_j$) \cite{estevez1997}.
+    \item \textbf{Asignación de Segmentos:} Relacionar uno a uno cada individuo de la población con segmentos contiguos dentro del intervalo de la recta real $[0, S)$, de modo que la longitud de cada segmento sea equivalente a su grado de adaptación $f_i$ \cite{estevez1997}.
+    \item \textbf{Generación Aleatoria:} Generar un número pseudoaleatorio $r$ distribuido uniformemente en el intervalo $[0, S)$ \cite{estevez1997}.
+    \item \textbf{Selección del Individuo:} Identificar y seleccionar al individuo cuyo segmento contiguo cubre el número aleatorio generado $r$ \cite{estevez1997}.
+    \item \textbf{Repetición:} Repetir los pasos 3 y 4 de forma iterativa hasta completar el número deseado de muestras $M$ para conformar la población intermedia \cite{estevez1997}.
+\end{enumerate}
+
+\paragraph{Limitaciones de la Ruleta:}
+A pesar de su claridad conceptual, el método de la ruleta tradicional presenta dos inconvenientes \cite{estevez1997}:
+\begin{itemize}
+    \item \textbf{Dispersión Ilimitada:} Existe un alto error de muestreo estocástico producto del azar de los tirados independientes \cite{estevez1997}. La discrepancia entre el número esperado de copias $N_e[i]$ (teórico) y el número real obtenido tras la ejecución de la ruleta puede ser la máxima posible \cite{estevez1997}.
+    \item \textbf{Sensibilidad a Individuos Superadaptados (Convergencia Prematura):} La ecuación del valor esperado $N_e[i] = f_i / \bar{f}_t$ depende directamente de la magnitud de $f_i$ \cite{estevez1997}. Si en las etapas iniciales surge un individuo con una adaptación extraordinariamente alta en comparación al promedio, este acaparará la mayoría del área de la ruleta \cite{estevez1997}. Como consecuencia, sus copias multiplicadas dominarán la población en pocas generaciones, destruyendo la diversidad genética y causando que el algoritmo se estanque de manera prematura en un óptimo local \cite{estevez1997}.
+\end{itemize}
+
+\paragraph{Alternativas para Mitigar estas Limitaciones:}
+Para solventar la dispersión ilimitada, se utiliza el algoritmo de \textbf{Muestreo Estocástico Universal (SUS)}, el cual emplea un único giro con $M$ punteros equidistantes, minimizando el error de muestreo \cite{estevez1997}. Por otro lado, para contrarrestar la convergencia prematura provocada por superindividuos, la literatura sugiere desacoplar la selección del valor absoluto de la función de adaptación mediante técnicas como la selección por ranking o la selección por torneo \cite{estevez1997}.
+
+
+\subsubsection{Mecanismo de Selección por Ruleta Proporcional}
+La probabilidad $p_i$ de seleccionar al individuo $x_i$ viene dada por \cite{estevez1997}:
+\begin{equation}
+    p_i = \frac{F(x_i)}{\sum_{j=1}^{N} F(x_j)}, \quad \text{con } \sum_{i=1}^{N} p_i = 1
+\end{equation}
+
+\subsection{Estructura y Pseudocódigo del Algoritmo Genético}
+
+Siguiendo el esquema clásico de optimización estocástica, la estructura iterativa del algoritmo genético se define de la siguiente manera \cite{estevez1997}:
+
+\begin{enumerate}
+    \item \textbf{Inicio:} Inicializar el contador de generaciones $t = 0$.
+    \item \textbf{Inicialización:} Generar una población inicial $P(0)$ de $N$ individuos de forma aleatoria.
+    \item \textbf{Evaluación:} Calcular el valor de aptitud $F(x)$ para cada individuo en $P(0)$.
+    \item \textbf{Ciclo Iterativo:} Mientras no se cumpla el criterio de parada:
+    \begin{itemize}
+        \item Incrementar el contador de generaciones: $t = t + 1$.
+        \item \textbf{Selección:} Elegir padres mediante el Método de la Ruleta.
+        \item \textbf{Recombinación y Mutación:} Aplicar cruce ($p_c$) y mutación ($p_m$).
+        \item \textbf{Evaluación:} Evaluar la aptitud de la nueva población $P(t)$.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Formulación Matemática del Algoritmo Genético Canónico}
+
+Desde una perspectiva algebraico-estructural, la población en la generación $t$, denotada como $P(t)$, se representa mediante una matriz de tamaño $N \times L$ (en codificación binaria) o $N \times n$ (en codificación real), donde cada fila representa la estructura genotípica de un individuo $x_i$ \cite{seleccion.pdf}:
+
+\begin{equation}
+P(t) = \begin{bmatrix}
+x_{1,1} & x_{1,2} & \cdots & x_{1,L} \\
+x_{2,1} & x_{2,2} & \cdots & x_{2,L} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{N,1} & x_{N,2} & \cdots & x_{N,L}
+\end{bmatrix} \in \{0, 1\}^{N \times L}
+\end{equation}
+
+El dominio de evaluación se formaliza mediante la transformación del genotipo al fenotipo y su evaluación en la función de aptitud \cite{seleccion.pdf}:
+
+\begin{equation}
+f(P(t)) = \begin{bmatrix} f(x_1) \\ f(x_2) \\ \vdots \\ f(x_N) \end{bmatrix} \in \mathbb{R}^N, \quad \text{con vector de probabilidades: } p(t) = \begin{bmatrix} p_1 \\ p_2 \\ \vdots \\ p_N \end{bmatrix} = \frac{f(P(t))}{\sum_{j=1}^N f(x_j)}
+\end{equation}
+
+Las transformaciones de variación genética sobre la matriz $P(t)$ operan mediante transformaciones vectoriales y matriciales de reemplazo:
+\begin{enumerate}
+    \item \textbf{Selección ($\mathcal{S}$):} Mapea la matriz de la población $P(t) \in \{0,1\}^{N \times L}$ a una matriz intermedia de padres $P_s(t) \in \{0,1\}^{N \times L}$ mediante muestreo sobre la distribución $p(t)$ \cite{seleccion.pdf}.
+    \item \textbf{Recombinación / Cruce ($\mathcal{C}$):} Para cada par de filas $x_a, x_b \in P_s(t)$ y un punto de corte $k \in \{1, \dots, L-1\}$, se reemplazan los segmentos mediante la operación de concatenación de vectores:
+    \begin{equation}
+        h_1 = [x_{a, 1..k} \;\|\; x_{b, k+1..L}], \quad h_2 = [x_{b, 1..k} \;\|\; x_{a, k+1..L}]
+    \end{equation}
+    \item \textbf{Mutación ($\mathcal{M}$):} Actúa sobre celdas individuales $(i, j)$ de la matriz de descendientes $P'(t)$ aplicando la operación lógica bit a bit (\textit{bit-flip}):
+    \begin{equation}
+        P'_{i,j} \leftarrow \begin{cases} 1 - P'_{i,j}, & \text{si } r \le p_m, \quad r \sim U(0,1) \\ P'_{i,j}, & \text{en otro caso} \end{cases}
+    \end{equation}
+\end{enumerate}
+
+---
+
+\subsection{Implementación Algorítmica (Pseudocódigo)}
+
+El procedimiento generacional completo que gobierna las transformaciones sobre la matriz de la población $P(t)$ se detalla en el siguiente algoritmo:
+
+
+\begin{algorithm}[H]
+\caption{Algoritmo Genético Canónico}
+\label{alg:ga_estevez}
+\begin{algorithmic}[1]
+    \Require Tamaño de población $N$, longitud de cadena $L$, prob. de cruce $p_c$, prob. de mutación $p_m$, máx. de generaciones $t_{\max}$.
+    \Ensure Mejor individuo hallado $x^*$.
+    
+    \State $t \gets 0$
+    \State Generar población inicial $P(0) \in \{0, 1\}^{N \times L}$ aleatoriamente
+    \State Evaluar $f(x_i)$ y asignar aptitud $F(x_i)$ para todo $x_i \in P(0)$
+    
+    \While{$t < t_{\max}$} \Comment{Criterio de parada: límite de generaciones}
+        \State $t \gets t + 1$
+        \State $P' \gets \emptyset$ \Comment{Inicializa la población intermedia como conjunto vacío}
+        
+        \State Calcular $p_i = \frac{F(x_i)}{\sum_{j=1}^N F(x_j)}$ para todo $x_i \in P(t-1)$ \Comment{1. Selección por Ruleta}
+        
+        \While{$|P'| < N$}
+            \State Seleccionar padres $x_a, x_b \in P(t-1)$ según la distribución $p_i$
+            
+            \If{$\text{random}(0,1) \le p_c$} \Comment{2. Recombinación / Cruce}
+                \State $(h_1, h_2) \gets \text{Crossover}(x_a, x_b)$
+            \Else
+                \State $h_1 \gets x_a$
+                \State $h_2 \gets x_b$
+            \EndIf
+            
+            \State $h_1 \gets \text{Mutate}(h_1, p_m)$ \Comment{3. Mutación Bit a Bit}
+            \State $h_2 \gets \text{Mutate}(h_2, p_m)$
+            
+            \State Insertar $h_1$ en $P'$
+            \If{$|P'| < N$} \Comment{Garantiza mantener exactamente el tamaño N}
+                \State Insertar $h_2$ en $P'$
+            \EndIf
+        \EndWhile
+        
+        \State $P(t) \gets P'$ \Comment{Reemplazo generacional}
+        \State Evaluar $f(x_i)$ y calcular $F(x_i)$ para todo $x_i \in P(t)$
+    \EndWhile
+    
+    \State \Return Individuo $x^*$ correspondiente a $\max \{F(x_i) \mid x_i \in P(t_{\max})\}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Ejemplo de Aplicación Numérica}
+
+Para ilustrar de forma práctica la dinámica del algoritmo genético, se presenta la maximización de la función escalar:
+
+\[
+\max f(x) = (x - 2)^2
+\]
+
+\subsubsection*{Configuración del Algoritmo}
+
+\begin{itemize}
+    \item Tamaño de población: $N = 4$
+    \item Longitud de cadena: $L = 8$ bits
+    \item Probabilidad de cruce: $p_c = 0.7$
+    \item Probabilidad de mutación: $p_m = 0.01$
+    \item Número máximo de generaciones: $K_{\text{máx}} = 3$
+\end{itemize}
+
+\subsubsection*{ITERACIÓN 0 ($t = 0$): INICIALIZACIÓN}
+
+\textbf{Población inicial (dada en el enunciado):}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cccc}
+\hline
+\textbf{Individuo} & \textbf{Binario} & \textbf{Decimal} & $f(x) = (x - 2)^2$ \\ \hline
+$x_1$ & \texttt{00010111} & 23 & 441 \\
+$x_2$ & \texttt{00010011} & 19 & 289 \\
+$x_3$ & \texttt{00010001} & 17 & 225 \\
+$x_4$ & \texttt{00011001} & 25 & 529 \\ \hline
+\end{tabular}
+\end{table}
+
+\[
+P(0) = \begin{bmatrix} 23 \\ 19 \\ 17 \\ 25 \end{bmatrix}, \quad f(P(0)) = \begin{bmatrix} 441 \\ 289 \\ 225 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Aptitud máxima:} $\max f(P(0)) = 529$ (individuo $x_4 = 25$)
+
+
+\subsubsection*{ITERACIÓN 1 ($t = 1$): SELECCIÓN POR RULETA, CRUCE Y MUTACIÓN}
+
+\paragraph{Paso 1: Calcular la aptitud $F(x)$}
+Para maximización, usamos directamente $F(x) = f(x)$ (no necesitamos $C_{\max}$ porque es maximización).
+
+\[
+F(P(0)) = \begin{bmatrix} 441 \\ 289 \\ 225 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Suma total:} $S = 441 + 289 + 225 + 529 = 1484$
+
+\paragraph{Paso 2: Calcular probabilidades de selección (Ruleta)}
+\[
+p_i = \frac{F(x_i)}{S}
+\]
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ccll}
+\hline
+\textbf{Individuo} & $F(x_i)$ & $p_i$ & \textbf{Segmento en $[0, 1]$} \\ \hline
+$x_1\ (23)$ & $441$ & $441/1484 = \mathbf{0.2972}$ & $[0.0000, 0.2972]$ \\
+$x_2\ (19)$ & $289$ & $289/1484 = \mathbf{0.1947}$ & $[0.2972, 0.4919]$ \\
+$x_3\ (17)$ & $225$ & $225/1484 = \mathbf{0.1516}$ & $[0.4919, 0.6435]$ \\
+$x_4\ (25)$ & $529$ & $529/1484 = \mathbf{0.3565}$ & $[0.6435, 1.0000]$ \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Verificación:} $\sum p_i = 1.0000 \quad \checkmark$
+
+\paragraph{Paso 3: Generar números aleatorios y seleccionar padres}
+Generamos 4 números aleatorios $r \sim U(0, 1)$ para seleccionar 4 padres (con reemplazo):
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{clcc}
+\hline
+\textbf{Número} & \textbf{Segmento} & \textbf{Individuo seleccionado} & \textbf{Decimal} \\ \hline
+$r_1 = 0.4500$ & $[0.2972, 0.4919]$ & $x_2$ & $19$ \\
+$r_2 = 0.7200$ & $[0.6435, 1.0000]$ & $x_4$ & $25$ \\
+$r_3 = 0.1500$ & $[0.0000, 0.2972]$ & $x_1$ & $23$ \\
+$r_4 = 0.6800$ & $[0.6435, 1.0000]$ & $x_4$ & $25$ \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Padres seleccionados:} $[19, 25, 23, 25]$
+
+\paragraph{Paso 4: Emparejamiento y Cruce ($p_c = 0.7$)}
+
+\noindent \textbf{Pareja 1:} $(19, 25) \rightarrow r = 0.35 < 0.7 \rightarrow \textbf{Cruce}$
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario (8 bits)} \\ \hline
+19 & \texttt{00010011} \\
+25 & \texttt{00011001} \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent Punto de corte: $k = 4$ (después del bit 4)
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ccc}
+\hline
+& \textbf{Bits 1-4} & \textbf{Bits 5-8} \\ \hline
+19 & \texttt{0001} & \texttt{0011} \\
+25 & \texttt{0001} & \texttt{1001} \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_1 = \texttt{0001\,1001} = 00011001_2 = 25$
+    \item $h_2 = \texttt{0001\,0011} = 00010011_2 = 19$
+\end{itemize}
+
+\noindent \textbf{Pareja 2:} $(23, 25) \rightarrow r = 0.85 > 0.7 \rightarrow \textbf{Sin cruce (se clonan)}$
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario} \\ \hline
+23 & \texttt{00010111} \\
+25 & \texttt{00011001} \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_3 = 23$
+    \item $h_4 = 25$
+\end{itemize}
+
+\paragraph{Paso 5: Mutación ($p_m = 0.01$)}
+Aplicamos mutación a cada hijo (probabilidad muy baja, asumimos que no hay mutación en esta generación).
+
+\noindent \textbf{Hijos finales:}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ccc}
+\hline
+\textbf{Hijo} & \textbf{Decimal} & \textbf{Binario} \\ \hline
+$h_1$ & 25 & \texttt{00011001} \\
+$h_2$ & 19 & \texttt{00010011} \\
+$h_3$ & 23 & \texttt{00010111} \\
+$h_4$ & 25 & \texttt{00011001} \\ \hline
+\end{tabular}
+\end{table}
+
+\paragraph{Paso 6: Nueva población $P(1)$}
+\[
+P(1) = \begin{bmatrix} 25 \\ 19 \\ 23 \\ 25 \end{bmatrix}
+\]
+
+\paragraph{Paso 7: Evaluar $P(1)$}
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+\textbf{Individuo} & \textbf{Decimal} & $f(x) = (x - 2)^2$ \\ \hline
+$x_1$ & 25 & $23^2 = 529$ \\
+$x_2$ & 19 & $17^2 = 289$ \\
+$x_3$ & 23 & $21^2 = 441$ \\
+$x_4$ & 25 & $23^2 = 529$ \\ \hline
+\end{tabular}
+\end{center}
+
+\[
+f(P(1)) = \begin{bmatrix} 529 \\ 289 \\ 441 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Aptitud máxima:} $\max f(P(1)) = 529$
+
+\subsubsection*{ITERACIÓN 2 ($t = 2$): SELECCIÓN POR RULETA, CRUCE Y MUTACIÓN}
+
+\paragraph{Paso 1: Calcular la aptitud $F(x)$}
+
+\[
+F(P(1)) = \begin{bmatrix} 529 \\ 289 \\ 441 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Suma total:} $S = 529 + 289 + 441 + 529 = 1788$
+
+\paragraph{Paso 2: Calcular probabilidades de selección (Ruleta)}
+
+\begin{center}
+\begin{tabular}{ccll}
+\hline
+\textbf{Individuo} & $F(x_i)$ & $p_i$ & \textbf{Segmento en $[0, 1]$} \\ \hline
+$x_1\ (25)$ & $529$ & $529/1788 = \mathbf{0.2959}$ & $[0.0000, 0.2959]$ \\
+$x_2\ (19)$ & $289$ & $289/1788 = \mathbf{0.1616}$ & $[0.2959, 0.4575]$ \\
+$x_3\ (23)$ & $441$ & $441/1788 = \mathbf{0.2466}$ & $[0.4575, 0.7041]$ \\
+$x_4\ (25)$ & $529$ & $529/1788 = \mathbf{0.2959}$ & $[0.7041, 1.0000]$ \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Verificación:} $\sum p_i = 1.0000 \quad \checkmark$
+
+\paragraph{Paso 3: Generar números aleatorios y seleccionar padres}
+
+\begin{center}
+\begin{tabular}{clcc}
+\hline
+\textbf{Número} & \textbf{Segmento} & \textbf{Individuo seleccionado} & \textbf{Decimal} \\ \hline
+$r_1 = 0.5000$ & $[0.4575, 0.7041]$ & $x_3$ & $23$ \\
+$r_2 = 0.8000$ & $[0.7041, 1.0000]$ & $x_4$ & $25$ \\
+$r_3 = 0.2000$ & $[0.0000, 0.2959]$ & $x_1$ & $25$ \\
+$r_4 = 0.3500$ & $[0.2959, 0.4575]$ & $x_2$ & $19$ \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Padres seleccionados:} $[23, 25, 25, 19]$
+
+\paragraph{Paso 4: Emparejamiento y Cruce ($p_c = 0.7$)}
+
+\noindent \textbf{Pareja 1:} $(23, 25) \rightarrow r = 0.25 < 0.7 \rightarrow \textbf{Cruce}$
+
+\begin{center}
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario (8 bits)} \\ \hline
+23 & \texttt{00010111} \\
+25 & \texttt{00011001} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent Punto de corte: $k = 4$
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+& \textbf{Bits 1-4} & \textbf{Bits 5-8} \\ \hline
+23 & \texttt{0001} & \texttt{0111} \\
+25 & \texttt{0001} & \texttt{1001} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_1 = \texttt{0001\,1001} = 00011001_2 = 25$
+    \item $h_2 = \texttt{0001\,0111} = 00010111_2 = 23$
+\end{itemize}
+
+\noindent \textbf{Pareja 2:} $(25, 19) \rightarrow r = 0.60 < 0.7 \rightarrow \textbf{Cruce}$
+
+\begin{center}
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario (8 bits)} \\ \hline
+25 & \texttt{00011001} \\
+19 & \texttt{00010011} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent Punto de corte: $k = 4$
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+& \textbf{Bits 1-4} & \textbf{Bits 5-8} \\ \hline
+25 & \texttt{0001} & \texttt{1001} \\
+19 & \texttt{0001} & \texttt{0011} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_3 = \texttt{0001\,0011} = 00010011_2 = 19$
+    \item $h_4 = \texttt{0001\,1001} = 00011001_2 = 25$
+\end{itemize}
+
+\paragraph{Paso 5: Mutación ($p_m = 0.01$)}
+Asumimos que no hay mutación en esta generación.
+
+\noindent \textbf{Hijos finales:}
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+\textbf{Hijo} & \textbf{Decimal} & \textbf{Binario} \\ \hline
+$h_1$ & 25 & \texttt{00011001} \\
+$h_2$ & 23 & \texttt{00010111} \\
+$h_3$ & 19 & \texttt{00010011} \\
+$h_4$ & 25 & \texttt{00011001} \\ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Paso 6: Nueva población $P(2)$}
+\[
+P(2) = \begin{bmatrix} 25 \\ 23 \\ 19 \\ 25 \end{bmatrix}
+\]
+
+\paragraph{Paso 7: Evaluar $P(2)$}
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+\textbf{Individuo} & \textbf{Decimal} & $f(x) = (x - 2)^2$ \\ \hline
+$x_1$ & 25 & $23^2 = 529$ \\
+$x_2$ & 23 & $21^2 = 441$ \\
+$x_3$ & 19 & $17^2 = 289$ \\
+$x_4$ & 25 & $23^2 = 529$ \\ \hline
+\end{tabular}
+\end{center}
+
+\[
+f(P(2)) = \begin{bmatrix} 529 \\ 441 \\ 289 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Aptitud máxima:} $\max f(P(2)) = 529$
+\subsubsection*{ITERACIÓN 3 ($t = 3$): SELECCIÓN POR RULETA, CRUCE Y MUTACIÓN}
+
+\paragraph{Paso 1: Calcular la aptitud $F(x)$}
+
+\[
+F(P(2)) = \begin{bmatrix} 529 \\ 441 \\ 289 \\ 529 \end{bmatrix}
+\]
+
+\noindent \textbf{Suma total:} $S = 529 + 441 + 289 + 529 = 1788$
+
+\paragraph{Paso 2: Calcular probabilidades de selección (Ruleta)}
+
+\begin{center}
+\begin{tabular}{ccll}
+\hline
+\textbf{Individuo} & $F(x_i)$ & $p_i$ & \textbf{Segmento en $[0, 1]$} \\ \hline
+$x_1\ (25)$ & $529$ & $529/1788 = \mathbf{0.2959}$ & $[0.0000, 0.2959]$ \\
+$x_2\ (23)$ & $441$ & $441/1788 = \mathbf{0.2466}$ & $[0.2959, 0.5425]$ \\
+$x_3\ (19)$ & $289$ & $289/1788 = \mathbf{0.1616}$ & $[0.5425, 0.7041]$ \\
+$x_4\ (25)$ & $529$ & $529/1788 = \mathbf{0.2959}$ & $[0.7041, 1.0000]$ \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Verificación:} $\sum p_i = 1.0000 \quad \checkmark$
+
+\paragraph{Paso 3: Generar números aleatorios y seleccionar padres}
+
+\begin{center}
+\begin{tabular}{clcc}
+\hline
+\textbf{Número} & \textbf{Segmento} & \textbf{Individuo seleccionado} & \textbf{Decimal} \\ \hline
+$r_1 = 0.1000$ & $[0.0000, 0.2959]$ & $x_1$ & $25$ \\
+$r_2 = 0.6000$ & $[0.5425, 0.7041]$ & $x_3$ & $19$ \\
+$r_3 = 0.7500$ & $[0.7041, 1.0000]$ & $x_4$ & $25$ \\
+$r_4 = 0.4000$ & $[0.2959, 0.5425]$ & $x_2$ & $23$ \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Padres seleccionados:} $[25, 19, 25, 23]$
+
+\paragraph{Paso 4: Emparejamiento y Cruce ($p_c = 0.7$)}
+
+\noindent \textbf{Pareja 1:} $(25, 19) \rightarrow r = 0.30 < 0.7 \rightarrow \textbf{Cruce}$
+
+\begin{center}
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario (8 bits)} \\ \hline
+25 & \texttt{00011001} \\
+19 & \texttt{00010011} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent Punto de corte: $k = 4$
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+& \textbf{Bits 1-4} & \textbf{Bits 5-8} \\ \hline
+25 & \texttt{0001} & \texttt{1001} \\
+19 & \texttt{0001} & \texttt{0011} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_1 = \texttt{0001\,0011} = 00010011_2 = 19$
+    \item $h_2 = \texttt{0001\,1001} = 00011001_2 = 25$
+\end{itemize}
+
+\noindent \textbf{Pareja 2:} $(25, 23) \rightarrow r = 0.80 > 0.7 \rightarrow \textbf{Sin cruce (se clonan)}$
+
+\begin{center}
+\begin{tabular}{cc}
+\hline
+\textbf{Individuo} & \textbf{Binario} \\ \hline
+25 & \texttt{00011001} \\
+23 & \texttt{00010111} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Hijos:}
+\begin{itemize}
+    \item $h_3 = 25$
+    \item $h_4 = 23$
+\end{itemize}
+
+\paragraph{Paso 5: Mutación ($p_m = 0.01$)}
+Asumimos que no hay mutación en esta generación.
+
+\noindent \textbf{Hijos finales:}
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+\textbf{Hijo} & \textbf{Decimal} & \textbf{Binario} \\ \hline
+$h_1$ & 19 & \texttt{00010011} \\
+$h_2$ & 25 & \texttt{00011001} \\
+$h_3$ & 25 & \texttt{00011001} \\
+$h_4$ & 23 & \texttt{00010111} \\ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Paso 6: Nueva población $P(3)$}
+\[
+P(3) = \begin{bmatrix} 19 \\ 25 \\ 25 \\ 23 \end{bmatrix}
+\]
+
+\paragraph{Paso 7: Evaluar $P(3)$}
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+\textbf{Individuo} & \textbf{Decimal} & $f(x) = (x - 2)^2$ \\ \hline
+$x_1$ & 19 & $17^2 = 289$ \\
+$x_2$ & 25 & $23^2 = 529$ \\
+$x_3$ & 25 & $23^2 = 529$ \\
+$x_4$ & 23 & $21^2 = 441$ \\ \hline
+\end{tabular}
+\end{center}
+
+\[
+f(P(3)) = \begin{bmatrix} 289 \\ 529 \\ 529 \\ 441 \end{bmatrix}
+\]
+
+\noindent \textbf{Aptitud máxima:} $\max f(P(3)) = 529$
+\subsubsection*{RESUMEN DE RESULTADOS}
+
+\begin{center}
+\begin{tabular}{cclc}
+\hline
+\textbf{Generación} & \textbf{Población} & \textbf{Evaluación } $f(x)$ & \textbf{Máximo} \\ \hline
+$P(0)$ & $[23, 19, 17, 25]$ & $[441, 289, 225, 529]$ & 529 \\
+$P(1)$ & $[25, 19, 23, 25]$ & $[529, 289, 441, 529]$ & 529 \\
+$P(2)$ & $[25, 23, 19, 25]$ & $[529, 441, 289, 529]$ & 529 \\
+$P(3)$ & $[19, 25, 25, 23]$ & $[289, 529, 529, 441]$ & 529 \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent \textbf{Mejor individuo encontrado:} $x = 25$ \textbf{con} $f(25) = 529$
+
+\vspace{0.5cm}
+
+\subsubsection*{TABLA COMPLETA DE SELECCIÓN POR RULETA}
+
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cccccc}
+\hline
+\textbf{Generación} & $P(t)$ & $F(x)$ & $S$ & $p_i$ & \textbf{Padres seleccionados} \\ \hline
+$0 \rightarrow 1$ & $[23, 19, 17, 25]$ & $[441, 289, 225, 529]$ & 1484 & $[0.2972, 0.1947, 0.1516, 0.3565]$ & $[19, 25, 23, 25]$ \\
+$1 \rightarrow 2$ & $[25, 19, 23, 25]$ & $[529, 289, 441, 529]$ & 1788 & $[0.2959, 0.1616, 0.2466, 0.2959]$ & $[23, 25, 25, 19]$ \\
+$2 \rightarrow 3$ & $[25, 23, 19, 25]$ & $[529, 441, 289, 529]$ & 1788 & $[0.2959, 0.2466, 0.1616, 0.2959]$ & $[25, 19, 25, 23]$ \\ \hline
+\end{tabular}%
+}
+\end{center}
+El mejor individuo encontrado después de 3 generaciones es $x = 25$ con $f(25) = 529$. El máximo global de la función $f(x) = (x-2)^2$ en el dominio considerado es $f(25) = 529$.
+
+\textbf{Detalles}
+
+Aunque la ejecución matemática del algoritmo es correcta en cada una de sus fases, los resultados de la tabla resumen evidencian un fenómeno clásico en las metaheurísticas: la \textbf{convergencia prematura}. El mejor individuo encontrado en la última iteración ($x=25$) es exactamente el mismo que ya existía en la población inicial $P(0)$. Este estancamiento evolutivo se debe a dos factores estructurales específicos de este ejercicio:
+
+\begin{enumerate}
+    \item \textbf{Baja diversidad genética inicial:} Los individuos iniciales (17, 19, 23 y 25) son numéricamente cercanos. Al observarlos en su representación binaria de 8 bits, todos comparten idéntico prefijo en la primera mitad de su cromosoma (\texttt{0001}). Dado que el punto de corte para la recombinación se fijó a la mitad ($k=4$), el operador de cruce únicamente intercambia las "colas" de las cadenas. Esto provoca que la recombinación genere repetidamente clones exactos de los padres, impidiendo la exploración de nuevas áreas del espacio de soluciones.
+    
+    \item \textbf{Ausencia de mutación:} Al asumir la omisión del operador de mutación en todas las generaciones (debido a su baja probabilidad $p_m = 0.01$), se canceló el único mecanismo capaz de inyectar nuevo material genético. Sin mutación, resulta imposible que un bit \texttt{0} de la primera mitad del cromosoma se altere a \texttt{1}, bloqueando definitivamente al algoritmo de "descubrir" números mayores con mejor aptitud.
+\end{enumerate}
+
+En conclusión, demuestra empíricamente cómo la similitud genotípica inicial, combinada con la falta de mutación, destruye la diversidad de la población y condena al algoritmo al estancamiento prematuro.
+
+\newpage
+% -------------------------------------------------------------------------
+
+
+\section{Banco de Pruebas y Resultados
+Experimentales}\label{sec:pruebas}
+
+\subsection{Definición de Funciones
+Teóricas}\label{definiciuxf3n-de-funciones-teuxf3ricas}
+
+\subsection{Entorno de Desarrollo en
+Python}\label{entorno-de-desarrollo-en-python}
+
+\subsection{Análisis de Convergencia y
+Trayectorias}\label{anuxe1lisis-de-convergencia-y-trayectorias}
+
+\section{Conclusiones y Recomendaciones}\label{sec:conclusiones}
+
+El estudio teórico y la implementación práctica desarrollados en este trabajo permiten reafirmar a la Optimización Matemática como un pilar fundamental dentro de las ciencias de la computación. Mediante el análisis exhaustivo de la programación no lineal restringida y no restringida, se evidenció que la elección del algoritmo óptimo no depende únicamente de la velocidad de cómputo, sino de la topología de la función objetivo, la existencia de gradientes o derivadas de segundo orden y el comportamiento del espacio de búsqueda (convexidad, discontinuidades y suavidad).
+
+\begin{thebibliography}{99}
+\bibitem{bazaraa2013}
+Bazaraa, M. S., Sherali, H. D., \& Shetty, C. M. (2013). \emph{Nonlinear
+Programming: Theory and Algorithms}. John Wiley \& Sons.
+
+\bibitem{boyd2004}
+Boyd, S., \& Vandenberghe, L. (2004). \emph{Convex Optimization}.
+Cambridge University Press.
+
+\bibitem{estevez1997}
+Estévez V., P. (1997). 
+\textit{Optimización Mediante Algoritmos Genéticos}. 
+Departamento de Ingeniería Eléctrica, Universidad de Chile.
+
+\bibitem{nocedal2006}
+Nocedal, J., \& Wright, S. (2006). \emph{Numerical Optimization}.
+Springer Science \& Business Media.
+
+\bibitem{quintana2024}
+Quintana C., A. (2024). 
+\textit{Notas de Computación Evolutiva y Algoritmos Genéticos}. 
+Material docente universitario.
+\end{thebibliography}
+
+\end{document}

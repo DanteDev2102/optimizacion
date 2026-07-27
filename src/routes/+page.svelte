@@ -22,6 +22,9 @@
   let eqConsts = $state<string[]>([]);
   let ineqConsts = $state<string[]>([]);
   let tol = $state("0.001");
+  let tolX = $state("0.001");
+  let penaltyMethod = $state<"external" | "barrier">("external");
+  let populationSize = $state(50);
   let maxIters = $state(50);
   let stepSizeInit = $state(1.0);
   let advancedMode = $state(false);
@@ -31,6 +34,8 @@
   let c1 = $state(1e-4);
   let c2 = $state(0.9);
   let contractionFactor = $state(0.5);
+  let searchBoundsMin = $state([["-10", "-10"]]);
+  let searchBoundsMax = $state([["10", "10"]]);
 
   let result = $state<OptimizationResult | null>(null);
   let errorMsg = $state<string | null>(null);
@@ -58,7 +63,7 @@
   }
 
   function clearAll() {
-    algorithm = "newton";
+    // algorithm = "newton"; // Removed so RESET keeps selected algorithm
     objective = "x_1^2 + x_2^2";
     x0Dims = 2;
     x0Mat = [["1", "1"]];
@@ -67,6 +72,9 @@
     eqConsts = [];
     ineqConsts = [];
     tol = "0.001";
+    tolX = "0.001";
+    penaltyMethod = "external";
+    populationSize = 50;
     maxIters = 50;
     stepSizeInit = 1.0;
     advancedMode = false;
@@ -75,6 +83,8 @@
     c1 = 1e-4;
     c2 = 0.9;
     contractionFactor = 0.5;
+    searchBoundsMin = [["-10", "-10"]];
+    searchBoundsMax = [["10", "10"]];
     result = null;
     errorMsg = null;
     
@@ -127,15 +137,21 @@
         x0Mat,
         {
           tolerance: parseFloat(tol) || 0.001,
+          toleranceX: parseFloat(tolX) || 0.001,
+          penaltyMethod,
           stepSize: stepSizeInit,
           maxIterations: maxIters,
           c1,
           c2,
-          populationSize: 50,
+          populationSize,
           generations: maxIters,
           lineSearchStrategy,
           mHistory,
-          contractionFactor
+          contractionFactor,
+          searchBounds: { 
+            min: searchBoundsMin[0].map(Number), 
+            max: searchBoundsMax[0].map(Number) 
+          }
         },
         eqConsts,
         ineqConsts
@@ -167,6 +183,20 @@
         newX0[0][c] = x0Mat[0][c] || "0";
       }
       x0Mat = newX0;
+
+      // Resize searchBoundsMin (1 x n)
+      const newBoundsMin = Array(1).fill(null).map(() => Array(newDims).fill("-10"));
+      for (let c = 0; c < Math.min(newDims, searchBoundsMin[0]?.length || 0); c++) {
+        newBoundsMin[0][c] = searchBoundsMin[0][c] || "-10";
+      }
+      searchBoundsMin = newBoundsMin;
+
+      // Resize searchBoundsMax (1 x n)
+      const newBoundsMax = Array(1).fill(null).map(() => Array(newDims).fill("10"));
+      for (let c = 0; c < Math.min(newDims, searchBoundsMax[0]?.length || 0); c++) {
+        newBoundsMax[0][c] = searchBoundsMax[0][c] || "10";
+      }
+      searchBoundsMax = newBoundsMax;
 
       // Resize gradMat (1 x n)
       const newGrad = Array(1).fill(null).map(() => Array(newDims).fill("0"));
@@ -250,6 +280,9 @@
             bind:eqConsts
             bind:ineqConsts
             bind:tol
+            bind:tolX
+            bind:penaltyMethod
+            bind:populationSize
             bind:maxIters
             bind:stepSizeInit
             bind:advancedMode
@@ -258,6 +291,8 @@
             bind:c1
             bind:c2
             bind:contractionFactor
+            bind:searchBoundsMin
+            bind:searchBoundsMax
             onBegin={calculate}
             onClear={clearAll}
           />
