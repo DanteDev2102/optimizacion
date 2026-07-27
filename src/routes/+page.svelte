@@ -13,7 +13,7 @@
   
   // Modes
   let mode = $state<'optimizador' | 'kkt'>('optimizador');
-  let algorithm = $state<"gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga">("newton");
+  let algorithm = $state<"gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga">("gradient");
   let objective = $state("x_1^2 + x_2^2");
   let x0Dims = $state(2);
   let x0Mat = $state([["1", "1"]]);
