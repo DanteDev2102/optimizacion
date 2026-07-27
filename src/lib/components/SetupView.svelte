@@ -3,10 +3,11 @@
   import { slide } from "svelte/transition";
   import MathInput from "./MathInput.svelte";
   import MatrixBuilder from "./MatrixBuilder.svelte";
+  import { autoCalculateGradient, autoCalculateHessian } from "../utils/core/derivatives";
 
   let {
     isMinimized = $bindable(false),
-    algorithm = $bindable("newton"),
+    algorithm = $bindable("gradient"),
     objective = $bindable("x_1^2 + x_2^2"),
     x0Dims = $bindable(2),
     x0Mat = $bindable([["1", "1"]]),
@@ -65,6 +66,45 @@
     constraints: false,
     derivatives: true
   });
+
+  let manualGradient = $state(false);
+  let manualHessian = $state(false);
+
+  $effect(() => {
+    // Autocalculate gradient when objective or dims change, if manual mode is off
+    if (!manualGradient) {
+      gradMat = autoCalculateGradient(objective, x0Dims);
+    }
+  });
+
+  $effect(() => {
+    // Autocalculate hessian when objective or dims change, if manual mode is off
+    if (!manualHessian) {
+      hessMat = autoCalculateHessian(objective, x0Dims);
+    }
+  });
+
+  function toggleManualGradient() {
+    manualGradient = !manualGradient;
+    if (manualGradient) {
+      // Clear data to let user input
+      gradMat = [Array(x0Dims).fill("0")];
+    } else {
+      // Autocalculate immediately
+      gradMat = autoCalculateGradient(objective, x0Dims);
+    }
+  }
+
+  function toggleManualHessian() {
+    manualHessian = !manualHessian;
+    if (manualHessian) {
+      // Clear data to let user input
+      hessMat = Array(x0Dims).fill(null).map(() => Array(x0Dims).fill("0"));
+    } else {
+      // Autocalculate immediately
+      hessMat = autoCalculateHessian(objective, x0Dims);
+    }
+  }
 
   function addEq() { eqConsts = [...eqConsts, ""]; }
   function removeEq(i: number) { eqConsts = eqConsts.filter((_: string, idx: number) => idx !== i); }
@@ -377,10 +417,24 @@
               </button>
               {#if sectionsOpen.derivatives}
                 <div transition:slide>
-                  <div class="flex flex-col gap-4">
-                    <MatrixBuilder label="Vector Gradiente ∇f" type="vector" rows={1} cols={x0Dims} bind:value={gradMat} readonlyDimensions={true} />
+                  <div class="flex flex-col gap-6">
+                    <div class="flex flex-col">
+                      <MatrixBuilder label="Vector Gradiente ∇f" type="vector" rows={1} cols={x0Dims} bind:value={gradMat} readonlyDimensions={true} readonly={!manualGradient}>
+                        <label class="flex items-center gap-2 text-xs text-zinc-400 hover:text-white cursor-pointer ml-4">
+                          <input type="checkbox" checked={manualGradient} onchange={toggleManualGradient} class="accent-teal-500 w-3 h-3" />
+                          Introducir manual
+                        </label>
+                      </MatrixBuilder>
+                    </div>
                     {#if algorithm === 'newton'}
-                      <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} readonlyDimensions={true} />
+                      <div class="flex flex-col">
+                        <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} readonlyDimensions={true} readonly={!manualHessian}>
+                          <label class="flex items-center gap-2 text-xs text-zinc-400 hover:text-white cursor-pointer ml-4">
+                            <input type="checkbox" checked={manualHessian} onchange={toggleManualHessian} class="accent-teal-500 w-3 h-3" />
+                            Introducir manual
+                          </label>
+                        </MatrixBuilder>
+                      </div>
                     {/if}
                   </div>
                 </div>

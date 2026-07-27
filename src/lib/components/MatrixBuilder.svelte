@@ -10,7 +10,9 @@
     type = "matrix",
     value = $bindable([["0", "0"], ["0", "0"]]),
     focusedCell = $bindable<{r: number, c: number} | null>(null),
-    readonlyDimensions = false
+    readonlyDimensions = false,
+    readonly = false,
+    children
   } = $props<{
     rows?: number;
     cols?: number;
@@ -19,6 +21,8 @@
     value: string[][];
     focusedCell?: {r: number, c: number} | null;
     readonlyDimensions?: boolean;
+    readonly?: boolean;
+    children?: import('svelte').Snippet;
   }>();
 
   function updateDim() {
@@ -39,7 +43,7 @@
 
   function handleFocus(r: number, c: number) {
     focusedCell = { r, c };
-    if (value[r][c] === "0") {
+    if (!readonly && value[r][c] === "0") {
       value[r][c] = "";
     }
   }
@@ -65,7 +69,12 @@
 <div class="flex flex-col gap-4 w-full" role="group" aria-labelledby={labelId}>
   <!-- Header & Controls -->
   <div class="flex items-center justify-between">
-    <span id={labelId} class="text-xs font-bold tracking-wide text-teal-400 uppercase">{label}</span>
+    <div class="flex items-center gap-2">
+      <span id={labelId} class="text-xs font-bold tracking-wide text-teal-400 uppercase">{label}</span>
+      {#if children}
+        {@render children()}
+      {/if}
+    </div>
     
     <div class="flex items-center gap-3">
       {#if !readonlyDimensions}
@@ -99,8 +108,8 @@
                 class="w-14 h-14 md:w-16 md:h-16 rounded-xl border flex items-center justify-center text-sm md:text-base transition-all outline-none overflow-hidden {focusedCell?.r === r && focusedCell?.c === c ? 'border-teal-400 bg-teal-400/10 text-teal-300 shadow-[0_0_15px_rgba(52,211,153,0.3)]' : 'border-[#29344d] bg-[#1e2638] text-zinc-300 hover:border-zinc-500'}"
                 onclick={() => handleFocus(r, c)}
               >
-                <div class="w-full h-full px-1 md:px-2 flex items-center justify-center overflow-hidden whitespace-nowrap pointer-events-none">
-                  <div class="max-w-full overflow-hidden whitespace-nowrap">
+                <div class="w-full h-full px-1 md:px-2 flex items-center justify-center overflow-hidden pointer-events-none">
+                  <div class="max-w-full overflow-hidden whitespace-nowrap [&_*]:!whitespace-nowrap [&_*]:!break-keep" style="text-overflow: clip;">
                     <Latex math={value[r][c] || "0"} />
                   </div>
                 </div>
@@ -128,6 +137,7 @@
         <MathInput 
           bind:value={value[focusedCell.r][focusedCell.c]}
           autofocus={true}
+          readonly={readonly}
         />
       </div>
       <button 

@@ -7,11 +7,13 @@
     label = "",
     placeholder = "",
     autofocus = false,
+    readonly = false,
   } = $props<{
     value?: string;
     label?: string;
     placeholder?: string;
     autofocus?: boolean;
+    readonly?: boolean;
   }>();
 
   let mathfield: MathfieldElement | null = $state(null);
@@ -70,8 +72,11 @@
 
   // Watch for external value changes
   $effect(() => {
-    if (mathfield && mathfield.value !== value) {
-      mathfield.value = value;
+    if (mathfield) {
+      if (mathfield.value !== value) {
+        mathfield.value = value;
+      }
+      mathfield.readOnly = readonly;
     }
   });
 </script>
