@@ -70,6 +70,16 @@
   <div class="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8">
     <div class="flex flex-col gap-8 w-full max-w-2xl mx-auto">
       
+      <!-- Mode Selection Tabs -->
+      <div class="flex p-1.5 bg-black/40 border border-white/10 rounded-xl -mb-2">
+        <a href="/" class="flex-1 py-2 px-2 text-center text-xs font-bold tracking-widest uppercase rounded-lg bg-teal-500/20 text-teal-400 border border-teal-500/50 shadow-md transition-all">
+          Optimizador
+        </a>
+        <a href="/kkt" class="flex-1 py-2 px-2 text-center text-xs font-bold tracking-widest uppercase rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all">
+          Evaluador KKT
+        </a>
+      </div>
+
       <!-- Algorithms -->
       <div class="flex flex-col gap-4">
         <button onclick={() => sectionsOpen.algorithm = !sectionsOpen.algorithm} class="flex justify-between items-center w-full group">
