@@ -249,10 +249,10 @@
     <!-- RIGHT PANEL and LEFT PANEL exist in the same relative container -->
 
     <!-- LEFT PANEL: Setup -->
-    <div class="h-full flex-col transition-all duration-500 ease-in-out bg-[#0f131f] flex shrink-0
-                absolute z-20 w-full {isMinimized ? '-translate-x-full opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'} 
-                min-[750px]:pointer-events-auto min-[750px]:relative min-[750px]:max-w-none 
-                {isMinimized ? 'min-[750px]:w-0 min-[750px]:opacity-0 min-[750px]:border-none' : 'min-[750px]:w-[500px] min-[750px]:opacity-100 min-[750px]:border-r min-[750px]:border-white/5 min-[750px]:translate-x-0'} 
+    <div class="h-full flex-col transition-all duration-500 ease-in-out bg-[#0f131f] flex shrink-0 overflow-hidden
+                absolute z-20 w-full {isMinimized ? '-translate-x-full opacity-0 pointer-events-none' : 'translate-x-0 opacity-100 pointer-events-auto'} 
+                min-[750px]:relative min-[750px]:max-w-none 
+                {isMinimized ? 'min-[750px]:w-0 min-[750px]:opacity-0 min-[750px]:border-none min-[750px]:pointer-events-none' : 'min-[750px]:w-[500px] min-[750px]:opacity-100 min-[750px]:border-r min-[750px]:border-white/5 min-[750px]:translate-x-0 min-[750px]:pointer-events-auto'} 
                 shadow-2xl min-[750px]:shadow-none">
       
       <!-- Mode Selection Tabs INSIDE LEFT PANEL -->

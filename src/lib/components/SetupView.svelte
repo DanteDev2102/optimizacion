@@ -112,6 +112,57 @@
   function addIneq() { ineqConsts = [...ineqConsts, ""]; }
   function removeIneq(i: number) { ineqConsts = ineqConsts.filter((_: string, idx: number) => idx !== i); }
 
+  let currentPreset = $state("");
+
+  function loadPreset(preset: string) {
+    currentPreset = preset;
+    if (preset === "esfera") {
+      objective = "x_1^2 + x_2^2";
+      x0Dims = 2;
+      x0Mat = [["10", "10"]];
+      manualGradient = true;
+      manualHessian = true;
+      gradMat = [["2*x_1", "2*x_2"]];
+      hessMat = [["2", "0"], ["0", "2"]];
+      eqConsts = [];
+      ineqConsts = [];
+      algorithm = "newton";
+    } else if (preset === "rosenbrock") {
+      objective = "(1 - x_1)^2 + 100 * (x_2 - x_1^2)^2";
+      x0Dims = 2;
+      x0Mat = [["-1.2", "1"]];
+      manualGradient = true;
+      manualHessian = true;
+      gradMat = [["-2 * (1 - x_1) - 400 * x_1 * (x_2 - x_1^2)", "200 * (x_2 - x_1^2)"]];
+      hessMat = [["2 - 400 * (x_2 - 3 * x_1^2)", "-400 * x_1"], ["-400 * x_1", "200"]];
+      eqConsts = [];
+      ineqConsts = [];
+      algorithm = "bfgs";
+    } else if (preset === "himmelblau") {
+      objective = "(x_1^2 + x_2 - 11)^2 + (x_1 + x_2^2 - 7)^2";
+      x0Dims = 2;
+      x0Mat = [["0", "0"]];
+      manualGradient = true;
+      manualHessian = true;
+      gradMat = [["4 * x_1 * (x_1^2 + x_2 - 11) + 2 * (x_1 + x_2^2 - 7)", "2 * (x_1^2 + x_2 - 11) + 4 * x_2 * (x_1 + x_2^2 - 7)"]];
+      hessMat = [["12 * x_1^2 + 4 * x_2 - 42", "4 * x_1 + 4 * x_2"], ["4 * x_1 + 4 * x_2", "12 * x_2^2 + 4 * x_1 - 26"]];
+      eqConsts = [];
+      ineqConsts = [];
+      algorithm = "newton";
+    } else if (preset === "kkt") {
+      objective = "x_1^2 + x_2^2";
+      x0Dims = 2;
+      x0Mat = [["2", "2"]];
+      manualGradient = true;
+      manualHessian = true;
+      gradMat = [["2*x_1", "2*x_2"]];
+      hessMat = [["2", "0"], ["0", "2"]];
+      eqConsts = ["x_1 + x_2 - 1"];
+      ineqConsts = [];
+      algorithm = "newton";
+    }
+  }
+
 </script>
 
 <div class="flex flex-col h-full overflow-hidden bg-[#0f131f]">
@@ -322,6 +373,22 @@
             {#if sectionsOpen.model}
               <div transition:slide>
                 <div class="flex flex-col gap-4">
+                  <!-- Preset Selector -->
+                  <div class="flex flex-col gap-2 bg-teal-500/5 p-4 rounded-xl border border-teal-500/20">
+                    <label class="text-xs font-bold text-teal-400 uppercase tracking-widest">Cargar Problema de Prueba</label>
+                    <select 
+                      class="bg-[#0a0d14] border border-white/10 rounded-lg px-3 py-2 text-white font-mono text-sm outline-none focus:border-teal-400 transition-colors w-full"
+                      bind:value={currentPreset}
+                      onchange={(e) => loadPreset((e.target as HTMLSelectElement).value)}
+                    >
+                      <option value="">-- Personalizado / Ninguno --</option>
+                      <option value="esfera">Esfera (Convexa Simple)</option>
+                      <option value="rosenbrock">Rosenbrock (Valle Estrecho)</option>
+                      <option value="himmelblau">Himmelblau (Múltiples Mínimos)</option>
+                      <option value="kkt">Restricción KKT (Igualdad)</option>
+                    </select>
+                  </div>
+
                   <MathInput label="Función Objetivo f(x)" bind:value={objective} />
                   {#if algorithm !== 'ga'}
                     <MatrixBuilder label="Punto Inicial x₀" type="vector" rows={1} bind:cols={x0Dims} bind:value={x0Mat} readonlyDimensions={true} />
