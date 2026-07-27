@@ -34,6 +34,17 @@
           value = mathfield!.value;
         });
 
+        // Clean up leading zeros when the field loses focus
+        mathfield.addEventListener("focusout", () => {
+          let val = mathfield!.value;
+          // Strip leading zeros before other digits
+          val = val.replace(/(^|[^a-zA-Z0-9.])0+(?=\d)/g, '$1');
+          if (mathfield!.value !== val) {
+            mathfield!.value = val;
+            value = val;
+          }
+        });
+
         container.appendChild(mathfield);
         cleanup = () => {
           if (container && mathfield) {

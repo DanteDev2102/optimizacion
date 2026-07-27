@@ -70,15 +70,7 @@
   <div class="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8">
     <div class="flex flex-col gap-8 w-full max-w-2xl mx-auto">
       
-      <!-- Mode Selection Tabs -->
-      <div class="flex p-1.5 bg-black/40 border border-white/10 rounded-xl -mb-2">
-        <a href="/" class="flex-1 py-2 px-2 text-center text-xs font-bold tracking-widest uppercase rounded-lg bg-teal-500/20 text-teal-400 border border-teal-500/50 shadow-md transition-all">
-          Optimizador
-        </a>
-        <a href="/kkt" class="flex-1 py-2 px-2 text-center text-xs font-bold tracking-widest uppercase rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all">
-          Evaluador KKT
-        </a>
-      </div>
+
 
       <!-- Algorithms -->
       <div class="flex flex-col gap-4">
@@ -193,23 +185,23 @@
                   {#if lineSearchStrategy === 'backtracking' || lineSearchStrategy === 'zoom'}
                     <div class="flex flex-col gap-2 mt-2">
                       <div class="flex justify-between items-center">
-                        <label class="text-sm font-bold text-white tracking-wide">Armijo (c₁)</label>
-                        <input type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        <label for="c1-input" class="text-sm font-bold text-white tracking-wide">Armijo (c₁)</label>
+                        <input id="c1-input" type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
                     </div>
                     {#if lineSearchStrategy === 'zoom'}
                       <div class="flex flex-col gap-2 mt-2">
                         <div class="flex justify-between items-center">
-                          <label class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
-                          <input type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                          <label for="c2-input" class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
+                          <input id="c2-input" type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                         </div>
                       </div>
                     {/if}
                     {#if lineSearchStrategy === 'backtracking'}
                       <div class="flex flex-col gap-2 mt-2">
                         <div class="flex justify-between items-center">
-                          <label class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
-                          <input type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                          <label for="rho-input" class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
+                          <input id="rho-input" type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                         </div>
                       </div>
                     {/if}
@@ -219,8 +211,8 @@
                     <div class="w-full h-px bg-white/5 mt-2" transition:slide></div>
                     <div class="flex flex-col gap-2 mt-2" transition:slide>
                       <div class="flex justify-between items-center">
-                        <label class="text-sm font-bold text-white tracking-wide">L-BFGS Memory (m)</label>
-                        <input type="number" min="3" max="50" step="1" bind:value={mHistory} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        <label for="m-input" class="text-sm font-bold text-white tracking-wide">L-BFGS Memory (m)</label>
+                        <input id="m-input" type="number" min="3" max="50" step="1" bind:value={mHistory} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
                     </div>
                   {/if}
@@ -229,11 +221,13 @@
                 <div class="w-full h-px bg-white/5 mt-2"></div>
 
                 <div class="flex justify-between items-center mt-2">
-                  <label class="text-sm font-bold text-white flex flex-col gap-1">
+                  <label for="advanced-btn" class="text-sm font-bold text-white flex flex-col gap-1">
                     Advanced Mode
                     <span class="text-xs text-zinc-500 font-normal">Show trajectory graphs</span>
                   </label>
                   <button 
+                    id="advanced-btn"
+                    aria-label="Toggle Advanced Mode"
                     onclick={() => advancedMode = !advancedMode}
                     class="w-14 h-8 rounded-full transition-all relative {advancedMode ? 'bg-teal-500' : 'bg-[#0f131f] border border-white/10'}"
                   >
@@ -257,7 +251,7 @@
               <div transition:slide>
                 <div class="flex flex-col gap-4">
                   <MathInput label="Función Objetivo f(x)" bind:value={objective} />
-                  <MatrixBuilder label="Punto Inicial x₀" type="vector" rows={1} bind:cols={x0Dims} bind:value={x0Mat} />
+                  <MatrixBuilder label="Punto Inicial x₀" type="vector" rows={1} bind:cols={x0Dims} bind:value={x0Mat} readonlyDimensions={true} />
                 </div>
               </div>
             {/if}
@@ -328,11 +322,11 @@
               <div transition:slide>
                 <div class="flex flex-col gap-4">
                   {#if algorithm !== 'ga'}
-                    <MatrixBuilder label="Vector Gradiente ∇f" type="vector" rows={1} cols={x0Dims} bind:value={gradMat} />
+                    <MatrixBuilder label="Vector Gradiente ∇f" type="vector" rows={1} cols={x0Dims} bind:value={gradMat} readonlyDimensions={true} />
                   {/if}
 
                   {#if algorithm === 'newton'}
-                    <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} />
+                    <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} readonlyDimensions={true} />
                   {/if}
                 </div>
               </div>
