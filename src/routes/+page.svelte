@@ -128,39 +128,43 @@
     if (typeof window !== 'undefined' && window.innerWidth < 750) {
       isMinimized = true;
     }
-    try {
-      result = runOptimization(
-        algorithm,
-        objective,
-        algorithm !== 'ga' ? gradMat : null,
-        algorithm === 'newton' ? hessMat : null,
-        x0Mat,
-        {
-          tolerance: parseFloat(tol) || 0.001,
-          toleranceX: parseFloat(tolX) || 0.001,
-          penaltyMethod,
-          stepSize: stepSizeInit,
-          maxIterations: maxIters,
-          c1,
-          c2,
-          populationSize,
-          generations: maxIters,
-          lineSearchStrategy,
-          mHistory,
-          contractionFactor,
-          searchBounds: { 
-            min: searchBoundsMin[0].map(Number), 
-            max: searchBoundsMax[0].map(Number) 
-          }
-        },
-        eqConsts,
-        ineqConsts
-      );
-      showToast("Optimización completada exitosamente.", "success");
-    } catch (err: any) {
-      errorMsg = err.message || "Ocurrió un error en el cálculo.";
-      showToast(errorMsg, "error");
-    }
+    
+    // Dar tiempo al navegador para renderizar el panel colapsado y limpiar el resultado anterior
+    setTimeout(() => {
+      try {
+        result = runOptimization(
+          algorithm,
+          objective,
+          algorithm !== 'ga' ? gradMat : null,
+          algorithm === 'newton' ? hessMat : null,
+          x0Mat,
+          {
+            tolerance: parseFloat(tol) || 0.001,
+            toleranceX: parseFloat(tolX) || 0.001,
+            penaltyMethod,
+            stepSize: stepSizeInit,
+            maxIterations: maxIters,
+            c1,
+            c2,
+            populationSize,
+            generations: maxIters,
+            lineSearchStrategy,
+            mHistory,
+            contractionFactor,
+            searchBounds: { 
+              min: searchBoundsMin[0].map(Number), 
+              max: searchBoundsMax[0].map(Number) 
+            }
+          },
+          eqConsts,
+          ineqConsts
+        );
+        showToast("Optimización completada exitosamente.", "success");
+      } catch (err: any) {
+        errorMsg = err.message || "Ocurrió un error en el cálculo.";
+        showToast(errorMsg, "error");
+      }
+    }, 50);
   }
 
   // Auto-detect dimensions from objective function

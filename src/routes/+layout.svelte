@@ -38,7 +38,7 @@
   }
 </script>
 
-<div class="min-h-screen relative overflow-hidden flex flex-col">
+<div class="min-h-dvh relative overflow-hidden flex flex-col">
   <!-- Decorative background elements -->
   <div
     class="absolute -top-40 -left-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50 mix-blend-screen pointer-events-none"
@@ -48,7 +48,7 @@
   ></div>
 
   <!-- Main Content -->
-  <main class="flex-1 w-full flex flex-col h-screen relative z-10">
+  <main class="flex-1 w-full flex flex-col h-dvh relative z-10">
     <div class="flex-1 relative overflow-hidden">
       <div class="absolute inset-0">
         {@render children()}
