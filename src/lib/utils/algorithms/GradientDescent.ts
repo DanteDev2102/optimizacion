@@ -9,7 +9,7 @@ export class GradientDescentOptimizer implements IOptimizer {
     x0: number[],
     config: OptimizationConfig
   ): OptimizationResult {
-    const { maxIterations, tolerance, stepSize, c1, c2 } = config;
+    const { maxIterations, tolerance, toleranceX, stepSize, c1, c2 } = config;
     
     if (!problem.gradient) {
       throw new Error("Gradient descent requires an analytical gradient function.");
@@ -69,6 +69,15 @@ export class GradientDescentOptimizer implements IOptimizer {
       });
 
       if (normG < tolerance) {
+        return {
+          solution: xkNext,
+          iterations,
+          functionEvaluations: funcEvals,
+          exitCondition: "TOLERANCE_MET"
+        };
+      }
+
+      if (toleranceX !== undefined && vectorNorm(step as number[]) < toleranceX) {
         return {
           solution: xkNext,
           iterations,

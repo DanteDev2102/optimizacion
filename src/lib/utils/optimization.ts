@@ -2,9 +2,9 @@ import { ComputeEngine } from "@cortex-js/compute-engine";
 import type { IOptimizationProblem, OptimizationConfig, OptimizationResult } from "./core/interfaces";
 import { GradientDescentOptimizer } from "./algorithms/GradientDescent";
 import { NewtonOptimizer } from "./algorithms/Newton";
-import { BFGSOptimizer } from "./algorithms/QuasiNewton";
+import { BFGSOptimizer, SR1Optimizer } from "./algorithms/QuasiNewton";
 import { GeneticAlgorithmOptimizer } from "./algorithms/GeneticAlgorithm";
-import { checkKKT } from "./algorithms/Constraints";
+import { checkKKT, getPenalizedObjective, getLogarithmicBarrierObjective } from "./algorithms/Constraints";
 
 const ce = new ComputeEngine();
 
@@ -150,6 +150,22 @@ function approximateGradient(f: (x: number[]) => number, x: number[]): number[] 
   return grad;
 }
 
+function approximateHessian(f: (x: number[]) => number, x: number[]): number[][] {
+  const h = 1e-4;
+  const n = x.length;
+  const hessian = Array.from({length: n}, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const x_pp = [...x]; x_pp[i] += h; x_pp[j] += h;
+      const x_pm = [...x]; x_pm[i] += h; x_pm[j] -= h;
+      const x_mp = [...x]; x_mp[i] -= h; x_mp[j] += h;
+      const x_mm = [...x]; x_mm[i] -= h; x_mm[j] -= h;
+      hessian[i][j] = (f(x_pp) - f(x_pm) - f(x_mp) + f(x_mm)) / (4 * h * h);
+    }
+  }
+  return hessian;
+}
+
 function validateGradientMatchesObjective(
   gradient: (x: number[]) => number[],
   objective: (x: number[]) => number,
@@ -176,7 +192,7 @@ function validateObjectiveOutput(output: unknown): void {
 }
 
 export function runOptimization(
-  algorithm: "gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga",
+  algorithm: "gradient" | "newton" | "bfgs" | "sr1" | "dfp" | "lbfgs" | "ga",
   objectiveLatex: string,
   gradientMat: string[][] | null,
   hessianMat: string[][] | null,
@@ -205,11 +221,9 @@ export function runOptimization(
   const hasConstraints = (problem.equalityConstraints && problem.equalityConstraints.length > 0) || 
                          (problem.inequalityConstraints && problem.inequalityConstraints.length > 0);
 
-  if (algorithm !== 'ga' && hasConstraints) {
-    throw new Error("Constraints are only supported using the Penalty Method in the Genetic Algorithm (GA) right now. Analytical methods (Newton/BFGS/Gradient) require unconstrained formulations.");
-  }
+  // Block logic removed to allow outer loop penalty/barrier on analytical methods
 
-  if (algorithm === "newton" || algorithm === "bfgs" || algorithm === "dfp" || algorithm === "lbfgs" || algorithm === "gradient") {
+  if (algorithm === "newton" || algorithm === "bfgs" || algorithm === "sr1" || algorithm === "dfp" || algorithm === "lbfgs" || algorithm === "gradient") {
     if (!gradientMat || gradientMat.length === 0 || gradientMat[0].length === 0 || gradientMat[0][0] === "") {
       throw new Error(`The ${algorithm.toUpperCase()} algorithm requires the Gradient vector to be provided.`);
     }
@@ -260,6 +274,9 @@ export function runOptimization(
     case "bfgs":
       optimizer = new BFGSOptimizer();
       break;
+    case "sr1":
+      optimizer = new SR1Optimizer();
+      break;
     case "dfp":
       throw new Error("DFP algorithm is pending backend integration.");
     case "lbfgs":
@@ -271,7 +288,62 @@ export function runOptimization(
       throw new Error("Unknown algorithm selected.");
   }
 
-  const result = optimizer.optimize(problem, x0, config);
+  let result: OptimizationResult;
+
+  if (hasConstraints && algorithm !== 'ga') {
+    // Outer loop for Penalty or Barrier methods
+    const method = config.penaltyMethod || "external";
+    let penaltyParam = config.penaltyInitial || (method === "barrier" ? 1.0 : 10.0);
+    const outerIters = 10;
+    
+    let currentX = [...x0];
+    let allIterations: IterationResult[] = [];
+    let totalFuncEvals = 0;
+    
+    const originalObjective = problem.objective;
+
+    for (let k = 0; k < outerIters; k++) {
+      if (method === "barrier") {
+        problem.objective = getLogarithmicBarrierObjective(originalObjective, penaltyParam, problem.inequalityConstraints || []);
+      } else {
+        problem.objective = getPenalizedObjective(originalObjective, penaltyParam, problem.equalityConstraints || [], problem.inequalityConstraints || []);
+      }
+      
+      // Approximate gradients for the subproblem dynamically
+      problem.gradient = (x: number[]) => approximateGradient(problem.objective, x);
+      problem.hessian = (x: number[]) => approximateHessian(problem.objective, x);
+
+      result = optimizer.optimize(problem, currentX, config);
+      
+      // Shift iterations to show continuity
+      const shiftedIters = result.iterations.map(it => ({
+        ...it,
+        iteration: allIterations.length + it.iteration
+      }));
+      allIterations = allIterations.concat(shiftedIters);
+      totalFuncEvals += result.functionEvaluations;
+      currentX = result.solution;
+      
+      if (method === "barrier") {
+        penaltyParam *= 0.5; // decrease mu
+      } else {
+        penaltyParam *= 10; // increase r
+      }
+    }
+    
+    problem.objective = originalObjective;
+    
+    result = {
+      ...result,
+      iterations: allIterations,
+      functionEvaluations: totalFuncEvals,
+      solution: currentX
+    };
+
+  } else {
+    // Unconstrained or GA
+    result = optimizer.optimize(problem, x0, config);
+  }
 
   // Check KKT Conditions at the solution
   if (result.solution) {

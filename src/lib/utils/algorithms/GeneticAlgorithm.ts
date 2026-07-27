@@ -12,14 +12,17 @@ export class GeneticAlgorithmOptimizer implements IOptimizer {
     const n = x0.length;
 
     // Use penalized objective if constraints exist
-    const objective = getPenalizedObjective(
+    let penaltyFactor = config.penaltyInitial || 10.0;
+    
+    // Initial penalty function
+    let objective = getPenalizedObjective(
       problem.objective, 
-      1000, 
+      penaltyFactor, 
       problem.equalityConstraints, 
       problem.inequalityConstraints
     );
 
-    let population = this.initializePopulation(popSize, x0, 2.0);
+    let population = this.initializePopulation(popSize, n, config.searchBounds, x0, 10.0);
     const iterations: IterationResult[] = [];
     let funcEvals = 0;
     let bestX = [...x0];
@@ -72,6 +75,15 @@ export class GeneticAlgorithmOptimizer implements IOptimizer {
       }
 
       population = nextPopulation;
+
+      // Increase penalty over generations dynamically (like an outer loop)
+      penaltyFactor *= 1.2;
+      objective = getPenalizedObjective(
+        problem.objective, 
+        penaltyFactor, 
+        problem.equalityConstraints, 
+        problem.inequalityConstraints
+      );
     }
 
     return {
@@ -82,19 +94,28 @@ export class GeneticAlgorithmOptimizer implements IOptimizer {
     };
   }
 
-  private initializePopulation(size: number, center: number[], spread: number): number[][] {
+  private initializePopulation(size: number, n: number, bounds?: {min: number[], max: number[]}, center?: number[], spread = 10.0): number[][] {
     const pop = [];
-    const n = center.length;
     for (let i = 0; i < size; i++) {
       const ind = [];
       for (let j = 0; j < n; j++) {
-        // Random around center
-        ind.push(center[j] + (Math.random() * 2 - 1) * spread);
+        if (bounds && bounds.min.length === n && bounds.max.length === n) {
+          const min = bounds.min[j];
+          const max = bounds.max[j];
+          ind.push(min + Math.random() * (max - min));
+        } else if (center && center.length === n) {
+          ind.push(center[j] + (Math.random() * 2 - 1) * spread);
+        } else {
+          ind.push((Math.random() * 2 - 1) * spread);
+        }
       }
       pop.push(ind);
     }
-    // ensure center is in pop
-    pop[0] = [...center];
+    
+    // ensure center is in pop for some initial elitism if no bounds are strictly enforced
+    if (center && center.length === n && !bounds) {
+      pop[0] = [...center];
+    }
     return pop;
   }
 

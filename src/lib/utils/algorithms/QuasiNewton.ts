@@ -9,7 +9,7 @@ export class BFGSOptimizer implements IOptimizer {
     x0: number[],
     config: OptimizationConfig
   ): OptimizationResult {
-    const { maxIterations, tolerance, stepSize, c1, c2 } = config;
+    const { maxIterations, tolerance, toleranceX, stepSize, c1, c2 } = config;
     
     if (!problem.gradient) {
       throw new Error("BFGS requires an analytical gradient function.");
@@ -125,6 +125,16 @@ export class BFGSOptimizer implements IOptimizer {
         Hk = add(H_left_right, last_term) as number[][];
       }
 
+      
+      if (toleranceX !== undefined && vectorNorm(sk) < toleranceX) {
+        return {
+          solution: xkNext,
+          iterations,
+          functionEvaluations: funcEvals,
+          exitCondition: "TOLERANCE_MET"
+        };
+      }
+
       xk = xkNext;
     }
 
@@ -143,7 +153,7 @@ export class DFPOptimizer implements IOptimizer {
     x0: number[],
     config: OptimizationConfig
   ): OptimizationResult {
-    const { maxIterations, tolerance, c1, c2 } = config;
+    const { maxIterations, tolerance, toleranceX, c1, c2 } = config;
     
     if (!problem.gradient) {
       throw new Error("DFP requires an analytical gradient function.");
@@ -153,7 +163,7 @@ export class DFPOptimizer implements IOptimizer {
     const n = xk.length;
     
     // Initial inverse hessian approximation: H0 = I
-    let Hk = identity(n) as number[][];
+    let Hk = (identity(n) as any).toArray() as number[][];
     
     const iterations: IterationResult[] = [];
     let funcEvals = 0;
@@ -258,6 +268,16 @@ export class DFPOptimizer implements IOptimizer {
         }
       }
 
+      
+      if (toleranceX !== undefined && vectorNorm(sk) < toleranceX) {
+        return {
+          solution: xkNext,
+          iterations,
+          functionEvaluations: funcEvals,
+          exitCondition: "TOLERANCE_MET"
+        };
+      }
+
       xk = xkNext;
     }
 
@@ -277,7 +297,7 @@ export class LBFGSOptimizer implements IOptimizer {
     config: OptimizationConfig
   ): OptimizationResult {
     // default m = 5
-    const { maxIterations, tolerance, c1, c2, m = 5 } = config;
+    const { maxIterations, tolerance, toleranceX, c1, c2, m = 5 } = config;
     
     if (!problem.gradient) {
       throw new Error("L-BFGS requires an analytical gradient function.");
@@ -413,6 +433,16 @@ export class LBFGSOptimizer implements IOptimizer {
          Rho.push(1.0 / yk_sk);
       }
 
+      
+      if (toleranceX !== undefined && vectorNorm(sk) < toleranceX) {
+        return {
+          solution: xkNext,
+          iterations,
+          functionEvaluations: funcEvals,
+          exitCondition: "TOLERANCE_MET"
+        };
+      }
+
       xk = xkNext;
     }
 
@@ -422,5 +452,102 @@ export class LBFGSOptimizer implements IOptimizer {
       functionEvaluations: funcEvals,
       exitCondition: "MAX_ITERATIONS"
     };
+  }
+}
+
+
+export class SR1Optimizer implements IOptimizer {
+  optimize(
+    problem: IOptimizationProblem,
+    x0: number[],
+    config: OptimizationConfig
+  ): OptimizationResult {
+    const { maxIterations, tolerance, toleranceX, stepSize, c1, c2 } = config;
+    
+    if (!problem.gradient) {
+      throw new Error("SR1 requires an analytical gradient function.");
+    }
+
+    let xk = [...x0];
+    const n = xk.length;
+    let Hk = (identity(n) as any).toArray() as number[][];
+    
+    const iterations: IterationResult[] = [];
+    let funcEvals = 0;
+
+    for (let i = 0; i < maxIterations; i++) {
+      const fxk = problem.objective(xk);
+      funcEvals++;
+
+      const gk = problem.gradient(xk);
+      const normG = vectorNorm(gk);
+      
+      if (normG < tolerance) {
+        return { solution: xk, iterations, functionEvaluations: funcEvals, exitCondition: "TOLERANCE_MET" };
+      }
+
+      const pkMat = multiply(multiply(Hk, -1), gk) as unknown;
+      let pk: number[] = [];
+      if (Array.isArray(pkMat)) pk = pkMat.flat(Infinity) as number[];
+      else if (pkMat && typeof pkMat === "object" && "valueOf" in (pkMat as any)) {
+        const val = (pkMat as any).valueOf();
+        if (Array.isArray(val)) pk = val.flat(Infinity) as number[];
+        else pk = [Number(val)];
+      } else pk = [Number(pkMat)];
+
+      let alpha = stepSize || 1.0; 
+      const strategy = config.lineSearchStrategy || config.lineSearchMethod || "zoom";
+
+      if (strategy === "constant") {
+        alpha = stepSize || 1.0;
+      } else {
+        const useWolfe = strategy === "zoom";
+        const method = strategy === "zoom" ? "zoom" : "backtracking";
+        const rho = config.contractionFactor ?? 0.5;
+
+        const res = backtrackingLineSearch(
+          problem.objective, problem.gradient, xk, pk, stepSize || 1.0, c1 ?? 1e-4, c2 ?? 0.9, rho, useWolfe, method
+        );
+        alpha = res.alpha;
+        funcEvals += res.functionEvaluations;
+      }
+
+      const step = multiply(pk, alpha);
+      const xkNext = add(xk, step) as number[];
+      const gkNext = problem.gradient(xkNext);
+      
+      const sk = subtract(xkNext, xk) as number[];
+      const yk = subtract(gkNext, gk) as number[];
+      const normStep = vectorNorm(sk);
+
+      iterations.push({
+        iteration: i, xk: [...xk], fxk, grad: gk, hessian: Hk, pk, stepSize: alpha, xkNext: [...xkNext], normGrad: normG
+      });
+
+      if (toleranceX !== undefined && normStep < toleranceX) {
+        return { solution: xkNext, iterations, functionEvaluations: funcEvals, exitCondition: "TOLERANCE_MET" };
+      }
+
+      const yk2D = yk.map(val => [val]);
+      const sk2D = sk.map(val => [val]);
+      const Hk_yk = multiply(Hk, yk2D);
+      const diff = subtract(sk2D, Hk_yk) as number[][];
+      
+      const diffT = transpose(diff);
+      const diff_diffT = multiply(diff, diffT) as number[][];
+      const denominatorRes = multiply(diffT, yk2D);
+      const denominator = denominatorRes && typeof (denominatorRes as any).valueOf === 'function' 
+            ? (denominatorRes as any).valueOf()[0][0] 
+            : (denominatorRes as number[][])[0][0];
+
+      if (Math.abs(denominator) > 1e-8 * vectorNorm(diff.map(row => row[0])) * vectorNorm(yk)) {
+          const updateTerm = multiply(diff_diffT, 1.0 / denominator) as number[][];
+          Hk = add(Hk, updateTerm) as number[][];
+      }
+
+      xk = xkNext;
+    }
+
+    return { solution: xk, iterations, functionEvaluations: funcEvals, exitCondition: "MAX_ITERATIONS" };
   }
 }
