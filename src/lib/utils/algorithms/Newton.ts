@@ -42,8 +42,14 @@ export class NewtonOptimizer implements IOptimizer {
 
       let pk: number[];
       try {
-        const hInv = inv(hessian);
-        const pkMat = multiply(multiply(hInv, -1), gk);
+        let hInv = inv(hessian);
+        if ((hInv as any).toArray) hInv = (hInv as any).toArray();
+        else if ((hInv as any).valueOf) hInv = (hInv as any).valueOf();
+        
+        let pkMat = multiply(multiply(hInv, -1), gk);
+        if ((pkMat as any).toArray) pkMat = (pkMat as any).toArray();
+        else if ((pkMat as any).valueOf) pkMat = (pkMat as any).valueOf();
+        
         pk = Array.isArray(pkMat) && Array.isArray(pkMat[0]) 
              ? (squeeze(pkMat) as number[]) 
              : (pkMat as unknown as number[]);

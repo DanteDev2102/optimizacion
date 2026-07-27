@@ -59,7 +59,10 @@ export class GeneticAlgorithmOptimizer implements IOptimizer {
       // Selection (Tournament)
       const parents = this.tournamentSelection(population, fitnessScores, popSize);
 
-      // Crossover (BLX-alpha) and Mutation
+      // Crossover and Mutation probabilities
+      const crossoverRate = config.crossoverRate ?? 0.85;
+      const mutationRate = config.mutationRate ?? 0.03;
+
       const nextPopulation = [];
       // Elitism: keep best
       nextPopulation.push([...bestX]);
@@ -68,8 +71,14 @@ export class GeneticAlgorithmOptimizer implements IOptimizer {
         const p1 = parents[Math.floor(Math.random() * parents.length)];
         const p2 = parents[Math.floor(Math.random() * parents.length)];
         
-        let child = this.crossoverBLX(p1, p2, 0.5);
-        child = this.mutateGaussian(child, 0.1, 0.5); // Mut rate, variance
+        let child: number[];
+        if (Math.random() < crossoverRate) {
+          child = this.crossoverBLX(p1, p2, 0.5);
+        } else {
+          child = [...p1];
+        }
+
+        child = this.mutateGaussian(child, mutationRate, 0.5); // Mut rate, variance
         
         nextPopulation.push(child);
       }

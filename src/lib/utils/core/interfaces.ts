@@ -18,6 +18,9 @@ export interface OptimizationConfig {
   lineSearchStrategy?: "backtracking" | "exact" | "constant" | string;
   populationSize?: number; // For GA
   generations?: number; // For GA
+  bitsPerVariable?: number; // L_v
+  crossoverRate?: number; // p_c
+  mutationRate?: number; // p_m
   searchBounds?: { min: number[], max: number[] }; // For GA global exploration
   penaltyMethod?: "external" | "barrier"; // Constraint handling
   penaltyInitial?: number; // Initial mu/r value for penalty/barrier

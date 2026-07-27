@@ -73,6 +73,26 @@
 
   let activeTab = $state<"calculos" | "graficas">("calculos");
 
+  let displayIterations = $derived(
+    result
+      ? (() => {
+          let lastValidIndex = result.iterations.length - 1;
+          const isZero = (vec: number[] | undefined) => !vec || vec.every(v => Math.abs(v) < 1e-7);
+          
+          while (lastValidIndex > 0) {
+            const iter = result.iterations[lastValidIndex];
+            const isRedundant = isZero(iter.grad) && isZero(iter.pk) && (!iter.stepSize || Math.abs(iter.stepSize) < 1e-7);
+            if (isRedundant) {
+              lastValidIndex--;
+            } else {
+              break;
+            }
+          }
+          return result.iterations.slice(0, lastValidIndex + 1);
+        })()
+      : []
+  );
+
 </script>
 
 <div class="flex flex-col w-full min-h-full relative gap-6">
@@ -247,7 +267,7 @@
     {:else}
       <!-- Timeline Feed -->
       <div class="flex-1 flex flex-col gap-6 w-full pt-4">
-        {#each result.iterations as iter, i}
+        {#each displayIterations as iter, i}
           <div class="flex flex-col rounded-3xl bg-[#1e2638] border border-white/5 overflow-hidden shadow-lg transition-all hover:border-white/10">
             
             <!-- Card Header -->

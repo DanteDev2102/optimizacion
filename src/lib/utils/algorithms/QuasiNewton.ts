@@ -42,6 +42,9 @@ export class BFGSOptimizer implements IOptimizer {
 
       // pk = -Hk * gk
       let pkMat = multiply(multiply(Hk, -1), gk);
+      if ((pkMat as any).toArray) pkMat = (pkMat as any).toArray();
+      else if ((pkMat as any).valueOf) pkMat = (pkMat as any).valueOf();
+      
       let pk = Array.isArray(pkMat) && Array.isArray(pkMat[0]) 
              ? (squeeze(pkMat) as number[]) 
              : (pkMat as unknown as number[]);
@@ -122,7 +125,8 @@ export class BFGSOptimizer implements IOptimizer {
         const H_left_right = multiply(multiply(left, Hk), right) as number[][];
         const last_term = multiply(multiply(sk2D, skT), rho) as number[][];
         
-        Hk = add(H_left_right, last_term) as number[][];
+        const rawHk = add(H_left_right, last_term);
+        Hk = ((rawHk as any).toArray ? (rawHk as any).toArray() : rawHk) as number[][];
       }
 
       
@@ -263,8 +267,8 @@ export class DFPOptimizer implements IOptimizer {
             : (denRes as number[][])[0][0];
         
         if (denominator2 > 1e-10) {
-           const term2 = multiply(numerator2, 1.0 / denominator2) as number[][];
-           Hk = add(subtract(Hk, term2), term1) as number[][];
+           const rawHk = add(subtract(Hk, term2), term1);
+           Hk = ((rawHk as any).toArray ? (rawHk as any).toArray() : rawHk) as number[][];
         }
       }
 
@@ -542,7 +546,8 @@ export class SR1Optimizer implements IOptimizer {
 
       if (Math.abs(denominator) > 1e-8 * vectorNorm(diff.map(row => row[0])) * vectorNorm(yk)) {
           const updateTerm = multiply(diff_diffT, 1.0 / denominator) as number[][];
-          Hk = add(Hk, updateTerm) as number[][];
+          const rawHk = add(Hk, updateTerm);
+          Hk = ((rawHk as any).toArray ? (rawHk as any).toArray() : rawHk) as number[][];
       }
 
       xk = xkNext;

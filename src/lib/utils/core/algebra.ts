@@ -39,13 +39,15 @@ export function getModifiedHessian(hessian: number[][]): number[][] {
     const id = identity(n) as number[][];
     const shiftMatrix = multiply(id, tau) as number[][];
     
-    return add(hessian, shiftMatrix) as number[][];
+    let result = add(hessian, shiftMatrix);
+    return (result as any).toArray ? (result as any).toArray() : result as number[][];
   } catch (e) {
     // Fallback if eigs fails, just add a relatively large scalar to diagonal
     const n = hessian.length;
     const id = identity(n) as number[][];
     const shiftMatrix = multiply(id, 1.0) as number[][];
-    return add(hessian, shiftMatrix) as number[][];
+    let result = add(hessian, shiftMatrix);
+    return (result as any).toArray ? (result as any).toArray() : result as number[][];
   }
 }
 

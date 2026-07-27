@@ -36,6 +36,11 @@
   let contractionFactor = $state(0.5);
   let searchBoundsMin = $state([["-10", "-10"]]);
   let searchBoundsMax = $state([["10", "10"]]);
+  
+  // GA State
+  let bitsPerVariable = $state(16);
+  let crossoverRate = $state(0.85);
+  let mutationRate = $state(0.03);
 
   let result = $state<OptimizationResult | null>(null);
   let errorMsg = $state<string | null>(null);
@@ -85,6 +90,9 @@
     contractionFactor = 0.5;
     searchBoundsMin = [["-10", "-10"]];
     searchBoundsMax = [["10", "10"]];
+    bitsPerVariable = 16;
+    crossoverRate = 0.85;
+    mutationRate = 0.03;
     result = null;
     errorMsg = null;
     
@@ -145,6 +153,9 @@
           c2,
           populationSize,
           generations: maxIters,
+          bitsPerVariable,
+          crossoverRate,
+          mutationRate,
           lineSearchStrategy,
           mHistory,
           contractionFactor,
@@ -293,6 +304,9 @@
             bind:contractionFactor
             bind:searchBoundsMin
             bind:searchBoundsMax
+            bind:bitsPerVariable
+            bind:crossoverRate
+            bind:mutationRate
             onBegin={calculate}
             onClear={clearAll}
           />
