@@ -15,6 +15,9 @@
     eqConsts = $bindable([]),
     ineqConsts = $bindable([]),
     tol = $bindable("0.001"),
+    tolX = $bindable("0.001"),
+    penaltyMethod = $bindable("external"),
+    populationSize = $bindable(50),
     maxIters = $bindable(50),
     stepSizeInit = $bindable(1.0),
     advancedMode = $bindable(false),
@@ -23,10 +26,12 @@
     c1 = $bindable(1e-4),
     c2 = $bindable(0.9),
     contractionFactor = $bindable(0.5),
+    searchBoundsMin = $bindable([["-10", "-10"]]),
+    searchBoundsMax = $bindable([["10", "10"]]),
     onBegin,
     onClear
   } = $props<{
-    algorithm: "gradient" | "newton" | "bfgs" | "dfp" | "lbfgs" | "ga";
+    algorithm: "gradient" | "newton" | "bfgs" | "sr1" | "dfp" | "lbfgs" | "ga";
     objective: string;
     x0Dims: number;
     x0Mat: string[][];
@@ -35,6 +40,9 @@
     eqConsts: string[];
     ineqConsts: string[];
     tol: string;
+    tolX: string;
+    penaltyMethod: "external" | "barrier";
+    populationSize: number;
     maxIters: number;
     stepSizeInit: number;
     advancedMode: boolean;
@@ -43,6 +51,8 @@
     c1: number;
     c2: number;
     contractionFactor: number;
+    searchBoundsMin: string[][];
+    searchBoundsMax: string[][];
     onBegin: () => void;
     onClear: () => void;
   }>();
@@ -93,6 +103,10 @@
                 <Zap class="w-6 h-6" />
                 <span class="font-bold text-white">BFGS Method</span>
               </button>
+              <button onclick={() => algorithm = 'sr1'} class="flex flex-col gap-3 p-5 rounded-2xl border text-left transition-all {algorithm === 'sr1' ? 'bg-teal-500/10 border-teal-500 text-teal-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:border-white/10'}">
+                <Target class="w-6 h-6" />
+                <span class="font-bold text-white">SR1 Method</span>
+              </button>
               <button onclick={() => algorithm = 'ga'} class="flex flex-col gap-3 p-5 rounded-2xl border text-left transition-all {algorithm === 'ga' ? 'bg-teal-500/10 border-teal-500 text-teal-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:border-white/10'}">
                 <Settings class="w-6 h-6" />
                 <span class="font-bold text-white">Genetic Alg</span>
@@ -104,36 +118,45 @@
 
 
         <!-- Parameters -->
-        <div class="flex flex-col gap-4">
-          <button onclick={() => sectionsOpen.tolerance = !sectionsOpen.tolerance} class="flex justify-between items-center w-full group">
-            <h2 class="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-zinc-400 uppercase group-hover:text-white transition-colors">
-              <Target class="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors"/> Tolerance Level
-            </h2>
-            <ChevronDown class="w-4 h-4 text-zinc-500 transition-transform {sectionsOpen.tolerance ? 'rotate-180' : ''}" />
-          </button>
-          {#if sectionsOpen.tolerance}
-            <div transition:slide>
-              <div class="grid grid-cols-4 gap-2">
-                <button onclick={() => tol = '0.1'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.1' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
-                  <span class="font-bold text-xl text-white">1e-1</span>
-                  <span class="text-[10px] uppercase font-bold tracking-wider">Low</span>
-                </button>
-                <button onclick={() => tol = '0.01'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.01' ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
-                  <span class="font-bold text-xl text-white">1e-2</span>
-                  <span class="text-[10px] uppercase font-bold tracking-wider">Med</span>
-                </button>
-                <button onclick={() => tol = '0.001'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.001' ? 'bg-purple-500/20 border-purple-500 text-purple-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
-                  <span class="font-bold text-xl text-white">1e-3</span>
-                  <span class="text-[10px] uppercase font-bold tracking-wider">High</span>
-                </button>
-                <button onclick={() => tol = '0.00001'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.00001' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
-                  <span class="font-bold text-xl text-white">1e-5</span>
-                  <span class="text-[10px] uppercase font-bold tracking-wider">Max</span>
-                </button>
+        {#if algorithm !== 'ga'}
+          <div class="flex flex-col gap-4">
+            <button onclick={() => sectionsOpen.tolerance = !sectionsOpen.tolerance} class="flex justify-between items-center w-full group">
+              <h2 class="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-zinc-400 uppercase group-hover:text-white transition-colors">
+                <Target class="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors"/> Tolerance Level
+              </h2>
+              <ChevronDown class="w-4 h-4 text-zinc-500 transition-transform {sectionsOpen.tolerance ? 'rotate-180' : ''}" />
+            </button>
+            {#if sectionsOpen.tolerance}
+              <div transition:slide>
+                <div class="grid grid-cols-4 gap-2">
+                  <button onclick={() => tol = '0.1'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.1' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
+                    <span class="font-bold text-xl text-white">1e-1</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider">Low</span>
+                  </button>
+                  <button onclick={() => tol = '0.01'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.01' ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
+                    <span class="font-bold text-xl text-white">1e-2</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider">Med</span>
+                  </button>
+                  <button onclick={() => tol = '0.001'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.001' ? 'bg-purple-500/20 border-purple-500 text-purple-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
+                    <span class="font-bold text-xl text-white">1e-3</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider">High</span>
+                  </button>
+                  <button onclick={() => tol = '0.00001'} class="py-2 rounded-xl border flex flex-col items-center justify-center transition-all {tol === '0.00001' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-[#1e2638] border-transparent text-zinc-400 hover:bg-[#29344d]'}">
+                    <span class="font-bold text-xl text-white">1e-5</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider">Max</span>
+                  </button>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                  <label class="text-sm font-bold text-white flex flex-col gap-1">
+                    Tolerancia de Paso (ε₂)
+                    <span class="text-xs text-zinc-500 font-normal">Para convergencia en ||x - x0||</span>
+                  </label>
+                  <input type="number" step="0.0001" bind:value={tolX} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                </div>
               </div>
-            </div>
-          {/if}
-        </div>
+            {/if}
+          </div>
+        {/if}
 
         <!-- Settings Sliders -->
         <div class="flex flex-col gap-4">
@@ -154,6 +177,15 @@
                   </div>
                   <input type="range" min="10" max="1000" bind:value={maxIters} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                 </div>
+                {#if algorithm === 'ga'}
+                  <div class="flex flex-col gap-2 mt-2">
+                    <div class="flex justify-between items-center">
+                      <label class="text-sm font-bold text-white tracking-wide">Population Size</label>
+                      <input type="number" min="10" max="1000" bind:value={populationSize} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                    </div>
+                    <input type="range" min="10" max="1000" bind:value={populationSize} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
+                  </div>
+                {/if}
 
                 {#if algorithm !== 'ga'}
                   <div class="w-full h-px bg-white/5"></div>
@@ -251,7 +283,16 @@
               <div transition:slide>
                 <div class="flex flex-col gap-4">
                   <MathInput label="Función Objetivo f(x)" bind:value={objective} />
-                  <MatrixBuilder label="Punto Inicial x₀" type="vector" rows={1} bind:cols={x0Dims} bind:value={x0Mat} readonlyDimensions={true} />
+                  {#if algorithm !== 'ga'}
+                    <MatrixBuilder label="Punto Inicial x₀" type="vector" rows={1} bind:cols={x0Dims} bind:value={x0Mat} readonlyDimensions={true} />
+                  {/if}
+                  {#if algorithm === 'ga'}
+                    <div class="flex flex-col gap-4 mt-4 p-4 bg-black/20 rounded-xl border border-teal-500/30">
+                      <h3 class="text-xs font-bold text-teal-400 uppercase tracking-widest flex items-center gap-2"><Target class="w-4 h-4"/> Límite de Búsqueda (Exploración Global)</h3>
+                      <MatrixBuilder label="Límite Inferior (Min)" type="vector" rows={1} bind:cols={x0Dims} bind:value={searchBoundsMin} readonlyDimensions={true} />
+                      <MatrixBuilder label="Límite Superior (Max)" type="vector" rows={1} bind:cols={x0Dims} bind:value={searchBoundsMax} readonlyDimensions={true} />
+                    </div>
+                  {/if}
                 </div>
               </div>
             {/if}
@@ -301,37 +342,51 @@
                         <button onclick={() => removeIneq(i)} class="p-2 text-zinc-500 hover:text-red-400 transition-colors"><Minus class="w-5 h-5"/></button>
                       </div>
                     {/each}
-                    {#if ineqConsts.length === 0}
+                                        {#if ineqConsts.length === 0}
                       <div class="p-4 rounded-xl border border-dashed border-white/10 text-center text-sm text-zinc-500">Sin restricciones de desigualdad</div>
                     {/if}
                   </div>
+                  {#if algorithm !== 'ga'}
+                    <div class="flex justify-between items-center mt-4 p-3 bg-[#0f131f] rounded-xl border border-white/5">
+                      <label class="text-sm font-bold text-white flex flex-col gap-1">
+                        Método de Restricción
+                        <span class="text-xs text-zinc-500 font-normal">Transformación del problema</span>
+                      </label>
+                      <select 
+                        bind:value={penaltyMethod} 
+                        class="bg-transparent border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
+                      >
+                        <option value="external">Penalty (External)</option>
+                        <option value="barrier">Log Barrier (Interior)</option>
+                      </select>
+                    </div>
+                  {/if}
                 </div>
               </div>
             {/if}
           </div>
 
           <!-- Derivatives -->
-          <div class="flex flex-col gap-4">
-            <button onclick={() => sectionsOpen.derivatives = !sectionsOpen.derivatives} class="flex justify-between items-center w-full group">
-              <h2 class="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase group-hover:text-white transition-colors">
-                <Activity class="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors"/> Derivatives (Optional if GA)
-              </h2>
-              <ChevronDown class="w-4 h-4 text-zinc-500 transition-transform {sectionsOpen.derivatives ? 'rotate-180' : ''}" />
-            </button>
-            {#if sectionsOpen.derivatives}
-              <div transition:slide>
-                <div class="flex flex-col gap-4">
-                  {#if algorithm !== 'ga'}
+          {#if algorithm !== 'ga'}
+            <div class="flex flex-col gap-4">
+              <button onclick={() => sectionsOpen.derivatives = !sectionsOpen.derivatives} class="flex justify-between items-center w-full group">
+                <h2 class="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase group-hover:text-white transition-colors">
+                  <Activity class="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors"/> Derivatives
+                </h2>
+                <ChevronDown class="w-4 h-4 text-zinc-500 transition-transform {sectionsOpen.derivatives ? 'rotate-180' : ''}" />
+              </button>
+              {#if sectionsOpen.derivatives}
+                <div transition:slide>
+                  <div class="flex flex-col gap-4">
                     <MatrixBuilder label="Vector Gradiente ∇f" type="vector" rows={1} cols={x0Dims} bind:value={gradMat} readonlyDimensions={true} />
-                  {/if}
-
-                  {#if algorithm === 'newton'}
-                    <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} readonlyDimensions={true} />
-                  {/if}
+                    {#if algorithm === 'newton'}
+                      <MatrixBuilder label="Matriz Hessiana H" type="matrix" rows={x0Dims} cols={x0Dims} bind:value={hessMat} readonlyDimensions={true} />
+                    {/if}
+                  </div>
                 </div>
-              </div>
-            {/if}
-          </div>
+              {/if}
+            </div>
+          {/if}
 
       </div>
     </div>
