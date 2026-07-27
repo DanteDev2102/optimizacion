@@ -76,7 +76,6 @@
 </script>
 
 <div class="flex flex-col w-full min-h-full relative gap-6">
-  <h2 class="text-sm font-bold tracking-[0.2em] text-zinc-400 uppercase">Results Dashboard</h2>
 
   <!-- Main Display (Optimal Solution) -->
   <div class="shrink-0 flex flex-col justify-end min-h-[150px]">

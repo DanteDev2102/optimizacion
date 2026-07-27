@@ -13,7 +13,6 @@
 </script>
 
 <div class="flex flex-col w-full h-full relative gap-6">
-  <h2 class="text-sm font-bold tracking-[0.2em] text-zinc-400 uppercase pt-4">Resultados KKT</h2>
 
   <div class="shrink-0 flex flex-col min-h-[150px]">
     {#if errorMsg}
@@ -63,10 +62,6 @@
             </div>
           </div>
         {/if}
-      </div>
-    {:else}
-      <div class="w-full bg-[#1e2638] rounded-3xl p-4 flex flex-col gap-2 shadow-inner items-center justify-center border border-white/5 min-h-[250px]">
-        <span class="text-sm text-zinc-500 mt-2 text-center">Ingresa un punto y evalúa las condiciones KKT.</span>
       </div>
     {/if}
   </div>
