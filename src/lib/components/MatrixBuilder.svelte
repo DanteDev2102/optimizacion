@@ -38,6 +38,21 @@
 
   function handleFocus(r: number, c: number) {
     focusedCell = { r, c };
+    if (value[r][c] === "0") {
+      value[r][c] = "";
+    }
+  }
+
+  function handleBlur(r: number, c: number) {
+    let val = value[r][c] || "";
+    // Remove leading zeros before digits (e.g. 06 -> 6, 007x -> 7x)
+    // Matches 0s at the start of string or after non-alphanumeric, followed by a digit
+    val = val.replace(/(^|[^a-zA-Z0-9.])0+(?=\d)/g, '$1');
+    if (val.trim() === "") {
+      val = "0";
+    }
+    value[r][c] = val;
+    focusedCell = null;
   }
 
   function focusEl(node: HTMLInputElement) {
@@ -85,7 +100,7 @@
                   type="text"
                   class="w-14 h-14 md:w-16 md:h-16 rounded-xl border text-center text-lg font-mono transition-all outline-none border-teal-400 bg-teal-400/10 text-teal-300 shadow-[0_0_15px_rgba(52,211,153,0.3)]"
                   bind:value={value[r][c]}
-                  onblur={() => focusedCell = null}
+                  onblur={() => handleBlur(r, c)}
                   use:focusEl
                 />
               {:else}
