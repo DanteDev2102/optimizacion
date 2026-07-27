@@ -262,17 +262,17 @@
               <div class="setup-card p-4 flex flex-col gap-4">
                 <!-- Global Params -->
                 <div class="flex flex-col gap-2">
-                  <div class="flex justify-between items-center">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                     <label class="text-sm font-bold text-white tracking-wide">Max Iterations</label>
-                    <input type="number" min="1" bind:value={maxIters} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                    <input type="number" min="1" bind:value={maxIters} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                   </div>
                   <input type="range" min="10" max="1000" bind:value={maxIters} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                 </div>
                 {#if algorithm === 'ga'}
                   <div class="flex flex-col gap-2 mt-2">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                       <label class="text-sm font-bold text-white tracking-wide">Population Size</label>
-                      <input type="number" min="10" max="1000" bind:value={populationSize} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      <input type="number" min="10" max="1000" bind:value={populationSize} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                     </div>
                     <input type="range" min="10" max="1000" bind:value={populationSize} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                   </div>
@@ -282,9 +282,9 @@
                   <div class="w-full h-px bg-white/5"></div>
                   <!-- Descent Specific Params -->
                   <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                       <label class="text-sm font-bold text-white tracking-wide">Step Size (α₀)</label>
-                      <input type="number" min="0.01" step="0.01" bind:value={stepSizeInit} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                      <input type="number" min="0.01" step="0.01" bind:value={stepSizeInit} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                     </div>
                     <input type="range" min="0.01" max="10" step="0.01" bind:value={stepSizeInit} class="w-full h-2 bg-[#0f131f] rounded-full appearance-none accent-teal-500" />
                   </div>
@@ -292,11 +292,11 @@
                   <div class="w-full h-px bg-white/5"></div>
 
                   <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                       <label class="text-sm font-bold text-white tracking-wide">Line Search Strategy</label>
                       <select 
                         bind:value={lineSearchStrategy} 
-                        class="bg-[#0f131f] border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
+                        class="w-full sm:w-auto bg-[#0f131f] border border-white/10 rounded-lg px-3 py-1 text-teal-400 font-mono text-sm outline-none focus:border-teal-400 transition-colors"
                       >
                         <option value="backtracking">Backtracking (Armijo)</option>
                         <option value="zoom">Strong Wolfe (Zoom / Cubic)</option>
@@ -307,35 +307,35 @@
                   
                   {#if lineSearchStrategy === 'backtracking' || lineSearchStrategy === 'zoom'}
                     <div class="flex flex-col gap-2 mt-2">
-                      <div class="flex justify-between items-center">
+                      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                         <label for="c1-input" class="text-sm font-bold text-white tracking-wide">Armijo (c₁)</label>
-                        <input id="c1-input" type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        <input id="c1-input" type="number" min="0" max="1" step="0.0001" bind:value={c1} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
                     </div>
                     {#if lineSearchStrategy === 'zoom'}
                       <div class="flex flex-col gap-2 mt-2">
-                        <div class="flex justify-between items-center">
-                          <label for="c2-input" class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
-                          <input id="c2-input" type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
-                        </div>
+                      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                        <label for="c2-input" class="text-sm font-bold text-white tracking-wide">Wolfe (c₂)</label>
+                        <input id="c2-input" type="number" min="0" max="1" step="0.1" bind:value={c2} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
+                    </div>
                     {/if}
                     {#if lineSearchStrategy === 'backtracking'}
                       <div class="flex flex-col gap-2 mt-2">
-                        <div class="flex justify-between items-center">
-                          <label for="rho-input" class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
-                          <input id="rho-input" type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
-                        </div>
+                      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                        <label for="rho-input" class="text-sm font-bold text-white tracking-wide">Contraction (ρ)</label>
+                        <input id="rho-input" type="number" min="0.01" max="0.99" step="0.1" bind:value={contractionFactor} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
+                    </div>
                     {/if}
                   {/if}
 
                   {#if algorithm === 'lbfgs'}
                     <div class="w-full h-px bg-white/5 mt-2" transition:slide></div>
                     <div class="flex flex-col gap-2 mt-2" transition:slide>
-                      <div class="flex justify-between items-center">
+                      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                         <label for="m-input" class="text-sm font-bold text-white tracking-wide">L-BFGS Memory (m)</label>
-                        <input id="m-input" type="number" min="3" max="50" step="1" bind:value={mHistory} class="w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
+                        <input id="m-input" type="number" min="3" max="50" step="1" bind:value={mHistory} class="w-full sm:w-24 text-right text-teal-400 font-mono text-base bg-teal-500/10 px-2 py-1 rounded-lg border border-transparent focus:border-teal-400 outline-none" />
                       </div>
                     </div>
                   {/if}
