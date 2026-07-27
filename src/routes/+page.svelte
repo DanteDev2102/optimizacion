@@ -7,6 +7,7 @@
   import { checkKKT } from "$lib/utils/algorithms/Constraints";
   import { parseObjective, runOptimization } from "$lib/utils/optimization";
   import type { OptimizationResult } from "$lib/utils/core/interfaces";
+  import Toast from "$lib/components/Toast.svelte";
 
   let isMinimized = $state(false);
   
@@ -38,6 +39,17 @@
   let kktPointStr = $state("0.5, 0.5");
   let kktResult = $state<any>(null);
   let kktErrorMsg = $state<string | null>(null);
+
+  // Toast Notification State
+  let toast = $state<{message: string, type: 'success' | 'error'} | null>(null);
+
+  function showToast(message: string, type: 'success' | 'error' = 'success') {
+    toast = { message, type };
+  }
+  
+  function closeToast() {
+    toast = null;
+  }
 
   function setMode(newMode: 'optimizador' | 'kkt') {
     if (mode === newMode) return;
@@ -92,9 +104,11 @@
       });
 
       kktResult = checkKKT(point, f, null, parsedEq, parsedIneq, 1e-4);
+      showToast("Evaluación KKT finalizada con éxito.", "success");
       
     } catch (err: any) {
       kktErrorMsg = err.message || "Ocurrió un error en el cálculo.";
+      showToast(kktErrorMsg, "error");
     }
   }
 
@@ -126,8 +140,10 @@
         eqConsts,
         ineqConsts
       );
+      showToast("Optimización completada exitosamente.", "success");
     } catch (err: any) {
       errorMsg = err.message || "Ocurrió un error en el cálculo.";
+      showToast(errorMsg, "error");
     }
   }
 
@@ -200,18 +216,11 @@
   <!-- MAIN CONTENT SPLIT -->
   <div class="flex-1 flex flex-row overflow-hidden relative">
     
-    <!-- Mobile Overlay -->
-    {#if !isMinimized}
-      <div 
-        class="absolute inset-0 bg-black/60 z-10 transition-opacity duration-300 min-[750px]:hidden" 
-        onclick={() => isMinimized = true}
-        aria-hidden="true"
-      ></div>
-    {/if}
+    <!-- RIGHT PANEL and LEFT PANEL exist in the same relative container -->
 
     <!-- LEFT PANEL: Setup -->
     <div class="h-full flex-col transition-all duration-500 ease-in-out bg-[#0f131f] flex shrink-0
-                absolute z-20 w-[90%] max-w-[400px] {isMinimized ? '-translate-x-full opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'} 
+                absolute z-20 w-full {isMinimized ? '-translate-x-full opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'} 
                 min-[750px]:pointer-events-auto min-[750px]:relative min-[750px]:max-w-none 
                 {isMinimized ? 'min-[750px]:w-0 min-[750px]:opacity-0 min-[750px]:border-none' : 'min-[750px]:w-[500px] min-[750px]:opacity-100 min-[750px]:border-r min-[750px]:border-white/5 min-[750px]:translate-x-0'} 
                 shadow-2xl min-[750px]:shadow-none">
@@ -267,7 +276,7 @@
 
     <!-- RIGHT PANEL: Calculator / Results Sidebar -->
     <div class="h-full flex-col relative overflow-hidden transition-all duration-500 ease-in-out bg-[#141926] 
-                flex flex-1 min-w-full min-[750px]:min-w-0 z-0">
+                flex w-full shrink-0 z-0">
     
       <div class="w-full h-full p-6 lg:p-8 overflow-y-auto custom-scrollbar flex flex-col">
         <h2 class="text-sm font-bold tracking-[0.2em] text-zinc-400 uppercase shrink-0 mb-6">Results Dashboard</h2>
@@ -292,4 +301,9 @@
       </div>
     </div>
   </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  {#if toast}
+    <Toast message={toast.message} type={toast.type} onClose={closeToast} />
+  {/if}
 </div>
