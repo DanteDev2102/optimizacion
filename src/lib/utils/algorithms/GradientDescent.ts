@@ -29,24 +29,30 @@ export class GradientDescentOptimizer implements IOptimizer {
       const pk = multiply(gk, -1) as number[];
 
       let alpha = stepSize || 1.0;
-      
-      // Only do line search if stepSize is not rigidly forced or if we want dynamic
-      // Actually, gradient descent needs line search to be robust.
-      const lineSearchResult = backtrackingLineSearch(
-        problem.objective,
-        problem.gradient,
-        xk,
-        pk,
-        alpha,
-        c1,
-        c2,
-        0.5,
-        false, // Usually armijo is enough for steepest descent
-        config.lineSearchMethod || "backtracking"
-      );
-      
-      alpha = lineSearchResult.alpha;
-      funcEvals += lineSearchResult.functionEvaluations;
+      const strategy = config.lineSearchStrategy || config.lineSearchMethod || "backtracking";
+      if (strategy === "constant") {
+        alpha = stepSize || 1.0;
+      } else {
+        const useWolfe = strategy === "zoom";
+        const method = strategy === "zoom" ? "zoom" : "backtracking";
+        const rho = config.contractionFactor ?? 0.5;
+
+        const lineSearchResult = backtrackingLineSearch(
+          problem.objective,
+          problem.gradient,
+          xk,
+          pk,
+          stepSize || 1.0,
+          c1 ?? 1e-4,
+          c2 ?? 0.9,
+          rho,
+          useWolfe,
+          method
+        );
+        
+        alpha = lineSearchResult.alpha;
+        funcEvals += lineSearchResult.functionEvaluations;
+      }
 
       const step = multiply(pk, alpha);
       const xkNext = add(xk, step) as number[];

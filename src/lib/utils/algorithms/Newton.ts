@@ -58,23 +58,32 @@ export class NewtonOptimizer implements IOptimizer {
         };
       }
 
-      let alpha = stepSize || 1.0; // Newton's natural step length is 1
-      
-      const lineSearchResult = backtrackingLineSearch(
-        problem.objective,
-        problem.gradient,
-        xk,
-        pk,
-        alpha,
-        c1,
-        c2,
-        0.5,
-        false,
-        config.lineSearchMethod || "backtracking"
-      );
-      
-      alpha = lineSearchResult.alpha;
-      funcEvals += lineSearchResult.functionEvaluations;
+      let alpha = stepSize || 1.0;
+      const strategy = config.lineSearchStrategy || config.lineSearchMethod || "backtracking";
+
+      if (strategy === "constant") {
+        alpha = stepSize || 1.0;
+      } else {
+        const useWolfe = strategy === "zoom";
+        const method = strategy === "zoom" ? "zoom" : "backtracking";
+        const rho = config.contractionFactor ?? 0.5;
+
+        const lineSearchResult = backtrackingLineSearch(
+          problem.objective,
+          problem.gradient,
+          xk,
+          pk,
+          stepSize || 1.0,
+          c1 ?? 1e-4,
+          c2 ?? 0.9,
+          rho,
+          useWolfe,
+          method
+        );
+        
+        alpha = lineSearchResult.alpha;
+        funcEvals += lineSearchResult.functionEvaluations;
+      }
 
       const step = multiply(pk, alpha);
       const xkNext = add(xk, step) as number[];
